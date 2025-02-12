@@ -169,3 +169,20 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+
+## Since this is a computational project.
+
+# Logs
+*.log
+
+
+# IDE settings
+.vscode/
+.idea/
+
+
+# Ignore results and raw data (optional)
+results/
+data/raw/
+
