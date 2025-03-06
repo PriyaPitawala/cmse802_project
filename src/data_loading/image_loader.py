@@ -59,19 +59,15 @@ def load_images_from_folder(folder_path: str, resize: Tuple[int, int] = None) ->
 
 def display_image_with_scale(image: np.ndarray, scale_length_pixels: int = 150, scale_text: str = "60 µm"):
     """
-    Displays an image with a scale bar.
+    Displays the raw POM image with a scale bar and a single solid white background for both the bar and text.
     
     Parameters:
-    - image (np.ndarray): The image array in BGR format.
+    - image (np.ndarray): The raw POM image.
     - scale_length_pixels (int): Length of the scale bar in pixels. Default is 150.
     - scale_text (str): Label for the scale bar. Default is "60 µm".
     """
-    # Convert BGR to RGB for correct display
-    image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    
-    # Display the image
     fig, ax = plt.subplots(figsize=(8, 8))
-    ax.imshow(image_rgb)
+    ax.imshow(image, cmap='gray')
     ax.set_title("Raw POM Image")
     ax.axis("off")  # Hide axes
     
@@ -79,11 +75,15 @@ def display_image_with_scale(image: np.ndarray, scale_length_pixels: int = 150, 
     x_start = 50  # X-coordinate for scale bar start
     y_start = image.shape[0] - 50  # Y-coordinate (50 px above the bottom)
     
-    # Draw scale bar as a white line
-    ax.plot([x_start, x_start + scale_length_pixels], [y_start, y_start], color="white", linewidth=4)
+    # Draw single solid white background for both scale bar and text
+    background_height = 60  # Adjust height to cover both the bar and text
+    ax.add_patch(plt.Rectangle((x_start - 10, y_start - background_height + 10), scale_length_pixels + 20, background_height, color="white", zorder=2))
     
-    # Add text label with white color and no background
+    # Draw scale bar as a black line
+    ax.plot([x_start, x_start + scale_length_pixels], [y_start, y_start], color="black", linewidth=4, zorder=3)
+    
+    # Add text label with black text on a single solid white background
     ax.text(x_start + scale_length_pixels / 2, y_start - 10, scale_text,
-            color="white", fontsize=12, ha="center", va="bottom")
+            color="black", fontsize=12, ha="center", va="bottom")
     
     plt.show()
