@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import cv2
 
 def display_image(image: np.ndarray, title: str, scale_length_pixels: int = 150, scale_text: str = "60 µm"):
     """
@@ -12,7 +13,7 @@ def display_image(image: np.ndarray, title: str, scale_length_pixels: int = 150,
     - scale_text (str): Label for the scale bar. Default is "60 µm".
     """
     fig, ax = plt.subplots(figsize=(8, 8))
-    ax.imshow(image, cmap='gray')
+    ax.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
     ax.set_title(title)
     ax.axis("off")  # Hide axes
     
