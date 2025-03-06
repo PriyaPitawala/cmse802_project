@@ -1,6 +1,7 @@
 import os
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
 from typing import List, Tuple
 
 def load_pom_image(image_path: str, resize: Tuple[int, int] = None) -> np.ndarray:
@@ -55,3 +56,34 @@ def load_images_from_folder(folder_path: str, resize: Tuple[int, int] = None) ->
             print(f"Warning: Skipping {file} due to error: {e}")
 
     return images
+
+def display_image_with_scale(image: np.ndarray, scale_length_pixels: int = 150, scale_text: str = "60 µm"):
+    """
+    Displays an image with a scale bar.
+    
+    Parameters:
+    - image (np.ndarray): The image array in BGR format.
+    - scale_length_pixels (int): Length of the scale bar in pixels. Default is 150.
+    - scale_text (str): Label for the scale bar. Default is "60 µm".
+    """
+    # Convert BGR to RGB for correct display
+    image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    
+    # Display the image
+    fig, ax = plt.subplots(figsize=(8, 8))
+    ax.imshow(image_rgb)
+    ax.set_title("Raw POM Image")
+    ax.axis("off")  # Hide axes
+    
+    # Positioning
+    x_start = 50  # X-coordinate for scale bar start
+    y_start = image.shape[0] - 50  # Y-coordinate (50 px above the bottom)
+    
+    # Draw scale bar as a white line
+    ax.plot([x_start, x_start + scale_length_pixels], [y_start, y_start], color="white", linewidth=4)
+    
+    # Add text label with white color and no background
+    ax.text(x_start + scale_length_pixels / 2, y_start - 10, scale_text,
+            color="white", fontsize=12, ha="center", va="bottom")
+    
+    plt.show()
