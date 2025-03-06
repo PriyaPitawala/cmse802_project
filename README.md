@@ -54,8 +54,8 @@ cmse802_project/
 2. **Set Up the Environment**:
 - Create a virtual environment:
   ```
-  python3 -m venv venv
-  source venv/bin/activate  # On Windows: venv\Scripts\activate
+  python3 -m venv env
+  source env/bin/activate  # On Windows: env\Scripts\activate
   ```
 - Install dependencies:
   ```
