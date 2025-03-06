@@ -18,6 +18,32 @@ class GrayConverter:
         - np.ndarray: Grayscale image.
         """
         return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    
+    @staticmethod
+    def equalize_histogram(gray_image: np.ndarray) -> np.ndarray:
+        """
+        Applies histogram equalization to enhance the contrast of a grayscale image.
+        
+        Parameters:
+        - gray_image (np.ndarray): Grayscale image.
+        
+        Returns:
+        - np.ndarray: Histogram-equalized grayscale image.
+        """
+        return cv2.equalizeHist(gray_image)
+    
+def apply_gaussian_blur(image: np.ndarray, kernel_size: int = 5) -> np.ndarray:
+    """
+    Applies Gaussian blur to reduce noise in the image.
+    
+    Parameters:
+    - image (np.ndarray): Input image (grayscale or color).
+    - kernel_size (int): Size of the Gaussian kernel. Default is 5.
+    
+    Returns:
+    - np.ndarray: Blurred image.
+    """
+    return cv2.GaussianBlur(image, (kernel_size, kernel_size), 0)
 
 def preprocess_image(image: np.ndarray) -> np.ndarray:
     """
