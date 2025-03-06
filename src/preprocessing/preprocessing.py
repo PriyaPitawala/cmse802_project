@@ -73,35 +73,20 @@ def apply_otsu_thresholding(image: np.ndarray) -> np.ndarray:
     _, binary_thresh = cv2.threshold(image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     return binary_thresh
 
-def preprocess_image(image: np.ndarray) -> np.ndarray:
+def apply_morphological_opening(image: np.ndarray, kernel_size: int = 3, iterations: int = 2) -> np.ndarray:
     """
-    Preprocesses the input image for gradient-based watershed segmentation.
-    Steps include Gaussian blurring, Sobel gradient computation,
-    thresholding, and morphological operations.
+    Applies morphological opening to refine segmented regions by removing noise.
     
     Parameters:
-    - image (np.ndarray): Input image in BGR format.
+    - image (np.ndarray): Binary image after thresholding.
+    - kernel_size (int): Size of the structuring element (default is 3x3).
+    - iterations (int): Number of times the operation is applied (default is 2).
     
     Returns:
-    - np.ndarray: Preprocessed image ready for watershed segmentation.
+    - np.ndarray: Image after morphological opening.
     """
-    # Convert to grayscale using GrayConverter
-    gray = GrayConverter.convert_to_gray(image)
-    
-    # Apply Gaussian blur to remove noise
-    blurred = apply_gaussian_blur(gray)
-    
-    # Compute gradient magnitude using Sobel filter
-    gradient_magnitude = compute_gradient_magnitude(blurred)
-    
-    # Apply Otsu’s thresholding
-    binary_thresh = apply_otsu_thresholding(gradient_magnitude)
-    
-    # Morphological operations to refine regions
-    kernel = np.ones((3,3), np.uint8)
-    opening = cv2.morphologyEx(binary_thresh, cv2.MORPH_OPEN, kernel, iterations=2)
-    
-    return opening
+    kernel = np.ones((kernel_size, kernel_size), np.uint8)
+    return cv2.morphologyEx(image, cv2.MORPH_OPEN, kernel, iterations=iterations)
 
 def compute_markers(image: np.ndarray) -> np.ndarray:
     """

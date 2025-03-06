@@ -36,6 +36,7 @@ cmse802_project/
 │   ├── feature_extraction/				# Extracting the features of percent crystallinity
 │   ├── crystallinity_quantification/	 	# Statistical calculations of percent crystallinity
 │   ├── regression/      					# Regression analysis for property correlation
+│   ├── visualization/      					# Scripts for displaying images and plots
 │
 ├── results/             					# Store results such as figures, plots, and output data
 │   ├── figures/         					# Visualizations and plots
