@@ -2,10 +2,27 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
+class GrayConverter:
+    """
+    A class to handle grayscale conversion of images.
+    """
+    @staticmethod
+    def convert_to_gray(image: np.ndarray) -> np.ndarray:
+        """
+        Converts an input image to grayscale.
+        
+        Parameters:
+        - image (np.ndarray): Input image in BGR format.
+        
+        Returns:
+        - np.ndarray: Grayscale image.
+        """
+        return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
 def preprocess_image(image: np.ndarray) -> np.ndarray:
     """
     Preprocesses the input image for gradient-based watershed segmentation.
-    Steps include grayscale conversion, Gaussian blurring, Sobel gradient computation,
+    Steps include Gaussian blurring, Sobel gradient computation,
     thresholding, and morphological operations.
     
     Parameters:
@@ -14,8 +31,8 @@ def preprocess_image(image: np.ndarray) -> np.ndarray:
     Returns:
     - np.ndarray: Preprocessed image ready for watershed segmentation.
     """
-    # Convert to grayscale
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # Convert to grayscale using GrayConverter
+    gray = GrayConverter.convert_to_gray(image)
     
     # Apply Gaussian blur to remove noise
     blurred = cv2.GaussianBlur(gray, (5, 5), 0)
