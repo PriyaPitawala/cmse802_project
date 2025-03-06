@@ -45,6 +45,34 @@ def apply_gaussian_blur(image: np.ndarray, kernel_size: int = 5) -> np.ndarray:
     """
     return cv2.GaussianBlur(image, (kernel_size, kernel_size), 0)
 
+def compute_gradient_magnitude(image: np.ndarray) -> np.ndarray:
+    """
+    Computes the gradient magnitude of an image using Sobel filtering.
+    
+    Parameters:
+    - image (np.ndarray): Input grayscale image.
+    
+    Returns:
+    - np.ndarray: Gradient magnitude image.
+    """
+    grad_x = cv2.Sobel(image, cv2.CV_64F, 1, 0, ksize=3)
+    grad_y = cv2.Sobel(image, cv2.CV_64F, 0, 1, ksize=3)
+    gradient_magnitude = cv2.magnitude(grad_x, grad_y)
+    return np.uint8(gradient_magnitude)
+
+def apply_otsu_thresholding(image: np.ndarray) -> np.ndarray:
+    """
+    Applies Otsu’s thresholding to separate foreground and background.
+    
+    Parameters:
+    - image (np.ndarray): Input grayscale or gradient magnitude image.
+    
+    Returns:
+    - np.ndarray: Binary image after Otsu’s thresholding.
+    """
+    _, binary_thresh = cv2.threshold(image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    return binary_thresh
+
 def preprocess_image(image: np.ndarray) -> np.ndarray:
     """
     Preprocesses the input image for gradient-based watershed segmentation.
@@ -61,16 +89,13 @@ def preprocess_image(image: np.ndarray) -> np.ndarray:
     gray = GrayConverter.convert_to_gray(image)
     
     # Apply Gaussian blur to remove noise
-    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+    blurred = apply_gaussian_blur(gray)
     
-    # Compute gradient using Sobel filter
-    grad_x = cv2.Sobel(blurred, cv2.CV_64F, 1, 0, ksize=3)
-    grad_y = cv2.Sobel(blurred, cv2.CV_64F, 0, 1, ksize=3)
-    gradient_magnitude = cv2.magnitude(grad_x, grad_y)
-    gradient_magnitude = np.uint8(gradient_magnitude)
+    # Compute gradient magnitude using Sobel filter
+    gradient_magnitude = compute_gradient_magnitude(blurred)
     
-    # Apply Otsu’s thresholding to separate foreground and background
-    _, binary_thresh = cv2.threshold(gradient_magnitude, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    # Apply Otsu’s thresholding
+    binary_thresh = apply_otsu_thresholding(gradient_magnitude)
     
     # Morphological operations to refine regions
     kernel = np.ones((3,3), np.uint8)
