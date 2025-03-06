@@ -182,9 +182,9 @@ cython_debug/
 .idea/
 
 
-# Ignore results and raw data (optional)
+# Ignore results and data
 results/
 data/raw/
-data/preprocessed
-data/processed
+data/preprocessed/
+data/processed/
 
