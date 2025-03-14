@@ -4,9 +4,10 @@ import numpy as np
 def preprocess_image(image: np.ndarray, blur_kernel=(5,5), threshold_method=cv2.THRESH_BINARY, 
                      threshold_value=127, adaptive=False, block_size=11, C=2,
                      use_edge_detection=False, edge_low_threshold=50, edge_high_threshold=150,
-                     use_gradient_thresholding=False):
+                     use_gradient_thresholding=False, enhance_contrast=False, detect_grain_boundaries=False):
     """
-    Preprocesses an image for segmentation, with optional edge detection and gradient thresholding.
+    Preprocesses an image for segmentation, with optional edge detection, gradient thresholding,
+    contrast enhancement (CLAHE), and grain boundary detection.
 
     Parameters:
     - image (np.ndarray): Input image in BGR format.
@@ -20,11 +21,18 @@ def preprocess_image(image: np.ndarray, blur_kernel=(5,5), threshold_method=cv2.
     - edge_low_threshold (int): Lower threshold for Canny edge detection.
     - edge_high_threshold (int): Upper threshold for Canny edge detection.
     - use_gradient_thresholding (bool): If True, apply Laplacian-based gradient thresholding.
+    - enhance_contrast (bool): If True, apply CLAHE to enhance local contrast.
+    - detect_grain_boundaries (bool): If True, apply Structure Tensor-based boundary detection.
 
     Returns:
     - np.ndarray: Preprocessed binary image.
     """
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    # Apply CLAHE for local contrast enhancement
+    if enhance_contrast:
+        clahe = cv2.createCLAHE(clipLimit=1.5, tileGridSize=(8,8))
+        gray_image = clahe.apply(gray_image)
 
     # Apply Gaussian Blur
     image_blur = cv2.GaussianBlur(gray_image, blur_kernel, 0)
@@ -46,6 +54,13 @@ def preprocess_image(image: np.ndarray, blur_kernel=(5,5), threshold_method=cv2.
         gradient = cv2.Laplacian(processed, cv2.CV_64F)  # Compute Laplacian
         gradient = cv2.convertScaleAbs(gradient)  # Convert to 8-bit format
         processed = cv2.bitwise_or(processed, gradient)  # Merge with thresholded image
+
+    # Apply grain boundary detection
+    if detect_grain_boundaries:
+        # Compute the morphological gradient (dilation - erosion) to highlight grain boundaries
+        kernel = np.ones((3,3), np.uint8)
+        grain_boundaries = cv2.morphologyEx(gray_image, cv2.MORPH_GRADIENT, kernel)
+        processed = cv2.bitwise_or(processed, grain_boundaries)  # Merge grain boundaries with existing features
 
     return processed
 
