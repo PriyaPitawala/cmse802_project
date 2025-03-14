@@ -18,14 +18,14 @@ def convert_to_displayable(image: np.ndarray) -> np.ndarray:
         image = cv2.normalize(image, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
     return image
 
-def display_image(image: np.ndarray, title="Image", scale_length_pixels=150, scale_text="60 µm"):
+def display_image(image: np.ndarray, title="Image", scale_length_pixels=130, scale_text="60 µm"):
     """
     Displays the image with a scale bar.
     
     Parameters:
     - image (np.ndarray): The image to display.
     - title (str): Title of the displayed image.
-    - scale_length_pixels (int): Length of the scale bar in pixels (default: 150 pixels for 60 µm).
+    - scale_length_pixels (int): Length of the scale bar in pixels (default: 130 pixels for 60 µm).
     - scale_text (str): Text to display for the scale bar (default: "60 µm").
     """
     # Convert image if necessary
