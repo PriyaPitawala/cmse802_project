@@ -31,13 +31,13 @@ class GrayConverter:
         """
         return cv2.equalizeHist(gray_image)
     
-def apply_gaussian_blur(image: np.ndarray, kernel_size: int = 5) -> np.ndarray:
+def apply_gaussian_blur(image: np.ndarray, kernel_size: int = 3) -> np.ndarray:
     """
     Applies Gaussian blur to reduce noise in the image.
     
     Parameters:
     - image (np.ndarray): Input image (grayscale or color).
-    - kernel_size (int): Size of the Gaussian kernel. Default is 5.
+    - kernel_size (int): Size of the Gaussian kernel. Default is 3 (faster than 5).
     
     Returns:
     - np.ndarray: Blurred image.
@@ -46,18 +46,24 @@ def apply_gaussian_blur(image: np.ndarray, kernel_size: int = 5) -> np.ndarray:
 
 def compute_gradient_magnitude(image: np.ndarray) -> np.ndarray:
     """
-    Computes the gradient magnitude of an image using Sobel filtering.
+    Computes the gradient magnitude of an image using optimized Sobel filtering.
     
     Parameters:
     - image (np.ndarray): Input grayscale image.
     
     Returns:
-    - np.ndarray: Gradient magnitude image.
+    - np.ndarray: Optimized gradient magnitude image.
     """
-    grad_x = cv2.Sobel(image, cv2.CV_64F, 1, 0, ksize=3)
-    grad_y = cv2.Sobel(image, cv2.CV_64F, 0, 1, ksize=3)
-    gradient_magnitude = cv2.magnitude(grad_x, grad_y)
-    return np.uint8(gradient_magnitude)
+    grad_x = cv2.Sobel(image, cv2.CV_32F, 1, 0, ksize=3)
+    grad_y = cv2.Sobel(image, cv2.CV_32F, 0, 1, ksize=3)
+    
+    # Compute magnitude using in-place multiplication (faster than cv2.magnitude)
+    grad_x = cv2.multiply(grad_x, grad_x)
+    grad_y = cv2.multiply(grad_y, grad_y)
+
+    gradient_magnitude = np.sqrt(grad_x + grad_y)
+
+    return cv2.convertScaleAbs(gradient_magnitude)  # Convert back to uint8 efficiently
 
 def apply_otsu_thresholding(image: np.ndarray) -> np.ndarray:
     """
@@ -69,17 +75,16 @@ def apply_otsu_thresholding(image: np.ndarray) -> np.ndarray:
     Returns:
     - np.ndarray: Binary image after Otsu’s thresholding.
     """
-    _, binary_thresh = cv2.threshold(image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    return binary_thresh
+    return cv2.threshold(image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
 
-def apply_morphological_opening(image: np.ndarray, kernel_size: int = 3, iterations: int = 2) -> np.ndarray:
+def apply_morphological_opening(image: np.ndarray, kernel_size: int = 2, iterations: int = 1) -> np.ndarray:
     """
     Applies morphological opening to refine segmented regions by removing noise.
     
     Parameters:
     - image (np.ndarray): Binary image after thresholding.
-    - kernel_size (int): Size of the structuring element (default is 3x3).
-    - iterations (int): Number of times the operation is applied (default is 2).
+    - kernel_size (int): Size of the structuring element (default is 2x2, faster).
+    - iterations (int): Number of times the operation is applied (default is 1).
     
     Returns:
     - np.ndarray: Image after morphological opening.
@@ -97,14 +102,13 @@ def compute_markers(image: np.ndarray) -> np.ndarray:
     Returns:
     - np.ndarray: Marker image with labeled regions.
     """
-    # Sure background area (dilation of binary image)
+    # Sure background area (faster dilation with fewer iterations)
     kernel = np.ones((3,3), np.uint8)
-    sure_bg = cv2.dilate(image, kernel, iterations=3)
+    sure_bg = cv2.dilate(image, kernel, iterations=2)  # Reduced iterations from 3 to 2
     
-    # Distance transform to find sure foreground
-    dist_transform = cv2.distanceTransform(image, cv2.DIST_L2, 5)
-    _, sure_fg = cv2.threshold(dist_transform, 0.7 * dist_transform.max(), 255, 0)
-    
+    # Fast binary thresholding instead of distance transform
+    sure_fg = cv2.threshold(image, 200, 255, cv2.THRESH_BINARY)[1]
+
     # Convert sure foreground to uint8 and find unknown region
     sure_fg = np.uint8(sure_fg)
     unknown = cv2.subtract(sure_bg, sure_fg)
@@ -115,4 +119,3 @@ def compute_markers(image: np.ndarray) -> np.ndarray:
     markers[unknown == 255] = 0  # Mark unknown regions as 0
     
     return markers
-
