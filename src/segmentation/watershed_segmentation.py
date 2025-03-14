@@ -3,14 +3,14 @@ import numpy as np
 
 def apply_watershed(image: np.ndarray, markers: np.ndarray) -> np.ndarray:
     """
-    Applies the watershed algorithm to segment regions in the given image and overlays the segmentation boundary on a grayscale version of the image.
-    
+    Applies the watershed algorithm to segment regions in the given image.
+
     Parameters:
     - image (np.ndarray): Original color image (BGR format).
     - markers (np.ndarray): Marker image generated from compute_markers().
-    
+
     Returns:
-    - np.ndarray: Grayscale image with watershed segmentation boundary overlaid in red.
+    - np.ndarray: Image with watershed segmentation boundary overlaid in green.
     """
     if image is None or markers is None:
         raise ValueError("Input image and markers must be valid numpy arrays.")
@@ -18,7 +18,7 @@ def apply_watershed(image: np.ndarray, markers: np.ndarray) -> np.ndarray:
     if len(image.shape) < 2 or len(markers.shape) < 2:
         raise ValueError("Invalid image or marker dimensions.")
 
-    # Convert image to grayscale
+    # Convert image to grayscale for display
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     gray_image = cv2.cvtColor(gray_image, cv2.COLOR_GRAY2BGR)  # Convert back to 3-channel for overlay
 

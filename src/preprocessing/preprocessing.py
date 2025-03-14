@@ -1,121 +1,99 @@
 import cv2
 import numpy as np
 
-class GrayConverter:
+def preprocess_image(image: np.ndarray, blur_kernel=(5,5), threshold_method=cv2.THRESH_BINARY, 
+                     threshold_value=127, adaptive=False, block_size=11, C=2,
+                     use_edge_detection=False, edge_low_threshold=50, edge_high_threshold=150,
+                     use_gradient_thresholding=False):
     """
-    A class to handle grayscale conversion of images.
-    """
-    @staticmethod
-    def convert_to_gray(image: np.ndarray) -> np.ndarray:
-        """
-        Converts an input image to grayscale.
-        
-        Parameters:
-        - image (np.ndarray): Input image in BGR format.
-        
-        Returns:
-        - np.ndarray: Grayscale image.
-        """
-        return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    
-    @staticmethod
-    def equalize_histogram(gray_image: np.ndarray) -> np.ndarray:
-        """
-        Applies histogram equalization to enhance the contrast of a grayscale image.
-        
-        Parameters:
-        - gray_image (np.ndarray): Grayscale image.
-        
-        Returns:
-        - np.ndarray: Histogram-equalized grayscale image.
-        """
-        return cv2.equalizeHist(gray_image)
-    
-def apply_gaussian_blur(image: np.ndarray, kernel_size: int = 3) -> np.ndarray:
-    """
-    Applies Gaussian blur to reduce noise in the image.
-    
+    Preprocesses an image for segmentation, with optional edge detection and gradient thresholding.
+
     Parameters:
-    - image (np.ndarray): Input image (grayscale or color).
-    - kernel_size (int): Size of the Gaussian kernel. Default is 3 (faster than 5).
-    
-    Returns:
-    - np.ndarray: Blurred image.
-    """
-    return cv2.GaussianBlur(image, (kernel_size, kernel_size), 0)
+    - image (np.ndarray): Input image in BGR format.
+    - blur_kernel (tuple): Kernel size for Gaussian blur.
+    - threshold_method (int): OpenCV thresholding method.
+    - threshold_value (int): Global threshold value (ignored if adaptive=True).
+    - adaptive (bool): If True, use adaptive thresholding.
+    - block_size (int): Size of the neighborhood for adaptive thresholding.
+    - C (int): Constant subtracted from the mean in adaptive thresholding.
+    - use_edge_detection (bool): If True, apply Canny edge detection.
+    - edge_low_threshold (int): Lower threshold for Canny edge detection.
+    - edge_high_threshold (int): Upper threshold for Canny edge detection.
+    - use_gradient_thresholding (bool): If True, apply Laplacian-based gradient thresholding.
 
-def compute_gradient_magnitude(image: np.ndarray) -> np.ndarray:
+    Returns:
+    - np.ndarray: Preprocessed binary image.
     """
-    Computes the gradient magnitude of an image using optimized Sobel filtering.
+    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    # Apply Gaussian Blur
+    image_blur = cv2.GaussianBlur(gray_image, blur_kernel, 0)
     
+    # Apply thresholding
+    if adaptive:
+        processed = cv2.adaptiveThreshold(image_blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
+                                          threshold_method, block_size, C)
+    else:
+        _, processed = cv2.threshold(image_blur, threshold_value, 255, threshold_method)
+
+    # Apply edge detection if enabled
+    if use_edge_detection:
+        edges = cv2.Canny(processed, edge_low_threshold, edge_high_threshold)
+        processed = cv2.bitwise_or(processed, edges)  # Merge edges into thresholded image
+
+    # Apply gradient-based thresholding if enabled
+    if use_gradient_thresholding:
+        gradient = cv2.Laplacian(processed, cv2.CV_64F)  # Compute Laplacian
+        gradient = cv2.convertScaleAbs(gradient)  # Convert to 8-bit format
+        processed = cv2.bitwise_or(processed, gradient)  # Merge with thresholded image
+
+    return processed
+
+def compute_markers(binary_image: np.ndarray, morph_kernel_size=(3,3), dilation_iter=3, 
+                    dist_transform_factor=0.5, min_foreground_area=100):
+    """
+    Computes markers for watershed segmentation.
+
     Parameters:
-    - image (np.ndarray): Input grayscale image.
-    
+    - binary_image (np.ndarray): Preprocessed binary image.
+    - morph_kernel_size (tuple): Kernel size for morphological operations.
+    - dilation_iter (int): Number of iterations for dilation.
+    - dist_transform_factor (float): Factor of the max distance transform to threshold the foreground.
+    - min_foreground_area (int): Minimum area to keep a connected component in the foreground.
+
     Returns:
-    - np.ndarray: Optimized gradient magnitude image.
+    - np.ndarray: Marker image for watershed algorithm.
     """
-    grad_x = cv2.Sobel(image, cv2.CV_32F, 1, 0, ksize=3)
-    grad_y = cv2.Sobel(image, cv2.CV_32F, 0, 1, ksize=3)
-    
-    # Compute magnitude using in-place multiplication (faster than cv2.magnitude)
-    grad_x = cv2.multiply(grad_x, grad_x)
-    grad_y = cv2.multiply(grad_y, grad_y)
+    kernel = np.ones(morph_kernel_size, np.uint8)
 
-    gradient_magnitude = np.sqrt(grad_x + grad_y)
+    # Noise removal using morphological opening
+    opening = cv2.morphologyEx(binary_image, cv2.MORPH_OPEN, kernel, iterations=2)
 
-    return cv2.convertScaleAbs(gradient_magnitude)  # Convert back to uint8 efficiently
+    # Sure background area using dilation
+    sure_bg = cv2.dilate(opening, kernel, iterations=dilation_iter)
 
-def apply_otsu_thresholding(image: np.ndarray) -> np.ndarray:
-    """
-    Applies Otsu’s thresholding to separate foreground and background.
-    
-    Parameters:
-    - image (np.ndarray): Input grayscale or gradient magnitude image.
-    
-    Returns:
-    - np.ndarray: Binary image after Otsu’s thresholding.
-    """
-    return cv2.threshold(image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+    # Distance transform and thresholding for sure foreground
+    dist_transform = cv2.distanceTransform(opening, cv2.DIST_L2, 5)
+    _, sure_fg = cv2.threshold(dist_transform, dist_transform_factor * dist_transform.max(), 255, 0)
 
-def apply_morphological_opening(image: np.ndarray, kernel_size: int = 2, iterations: int = 1) -> np.ndarray:
-    """
-    Applies morphological opening to refine segmented regions by removing noise.
-    
-    Parameters:
-    - image (np.ndarray): Binary image after thresholding.
-    - kernel_size (int): Size of the structuring element (default is 2x2, faster).
-    - iterations (int): Number of times the operation is applied (default is 1).
-    
-    Returns:
-    - np.ndarray: Image after morphological opening.
-    """
-    kernel = np.ones((kernel_size, kernel_size), np.uint8)
-    return cv2.morphologyEx(image, cv2.MORPH_OPEN, kernel, iterations=iterations)
-
-def compute_markers(image: np.ndarray) -> np.ndarray:
-    """
-    Computes foreground and background markers for watershed segmentation.
-    
-    Parameters:
-    - image (np.ndarray): Preprocessed binary image.
-    
-    Returns:
-    - np.ndarray: Marker image with labeled regions.
-    """
-    # Sure background area (faster dilation with fewer iterations)
-    kernel = np.ones((3,3), np.uint8)
-    sure_bg = cv2.dilate(image, kernel, iterations=2)  # Reduced iterations from 3 to 2
-    
-    # Fast binary thresholding instead of distance transform
-    sure_fg = cv2.threshold(image, 200, 255, cv2.THRESH_BINARY)[1]
-
-    # Convert sure foreground to uint8 and find unknown region
+    # Convert sure foreground to uint8
     sure_fg = np.uint8(sure_fg)
+
+    # Unknown region (subtracting sure foreground from sure background)
     unknown = cv2.subtract(sure_bg, sure_fg)
-    
-    # Create marker labels (background = 0, foreground > 1)
-    markers = cv2.connectedComponents(sure_fg)[1]
-    markers = markers + 1  # Ensure background is 1, not 0
-    markers[unknown == 255] = 0  # Mark unknown regions as 0
-    
+
+    # Marker labeling
+    num_labels, markers = cv2.connectedComponents(sure_fg)
+
+    # Filter out small regions
+    for label in range(1, num_labels):
+        if np.sum(markers == label) < min_foreground_area:
+            markers[markers == label] = 0
+
+    # Add 1 to all labels so that the background is not zero
+    markers = markers + 1
+
+    # Mark the unknown regions with zero
+    markers[unknown == 255] = 0
+
     return markers
