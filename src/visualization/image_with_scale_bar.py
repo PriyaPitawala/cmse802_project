@@ -12,10 +12,15 @@ def convert_to_displayable(image: np.ndarray) -> np.ndarray:
     Returns:
     - np.ndarray: Image in uint8 format suitable for display.
     """
-    if image.dtype == np.int32 or image.dtype == np.int64:
+    if image.dtype in [np.int32, np.int64]:
         image = image.astype(np.uint8)  # Convert to uint8 for OpenCV compatibility
-    elif image.dtype == np.float32 or image.dtype == np.float64:
+    elif image.dtype in [np.float32, np.float64]:
         image = cv2.normalize(image, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
+    
+    # Convert grayscale to 3-channel grayscale if necessary
+    if len(image.shape) == 2:
+        image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+    
     return image
 
 def display_image(image: np.ndarray, title="Image", scale_length_pixels=130, scale_text="60 µm"):
