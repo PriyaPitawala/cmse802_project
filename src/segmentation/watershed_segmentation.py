@@ -30,6 +30,6 @@ def apply_watershed(image: np.ndarray, markers: np.ndarray) -> np.ndarray:
     
     # Create a thin boundary mask
     boundary_mask = markers == -1  # Boundary pixels
-    gray_image[boundary_mask] = [0, 0, 255]  # Mark boundaries in red (BGR format: Blue=0, Green=0, Red=255)
+    gray_image[boundary_mask] = [0, 255, 0]  # Mark boundaries in green (BGR format: Blue=0, Green=255, Red=0)
     
     return gray_image
