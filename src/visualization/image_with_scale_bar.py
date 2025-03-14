@@ -31,7 +31,7 @@ def display_image(image: np.ndarray, title="Image", scale_length_pixels=130, sca
     # Convert image if necessary
     image = convert_to_displayable(image)
     
-    fig, ax = plt.subplots(figsize=(8, 8))
+    fig, ax = plt.subplots(figsize=(10,10))
     ax.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
     ax.set_title(title)
     ax.axis("off")  # Hide axes

@@ -28,8 +28,8 @@ def apply_watershed(image: np.ndarray, markers: np.ndarray) -> np.ndarray:
     # Apply watershed algorithm
     cv2.watershed(image, markers)
     
-    # Overlay watershed boundaries on grayscale image
+    # Create a thin boundary mask
     boundary_mask = markers == -1  # Boundary pixels
-    gray_image[boundary_mask] = [255, 0, 0]  # Mark boundaries in red
+    gray_image[boundary_mask] = [0, 0, 255]  # Mark boundaries in red (BGR format: Blue=0, Green=0, Red=255)
     
     return gray_image
