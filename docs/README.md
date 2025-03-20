@@ -67,19 +67,26 @@ cmse802_project/
   ```
 - Install dependencies:
   ```
-  pip install -r requirements.txt
+  # On bash: pip install -r requirements.txt 
   ```
 
 3. **Run the Code**:
-- Open Jupyter notebooks in the `notebooks/final` folder to run data loading, preprocessing, segmentation, feature extraction, crystallinity quantification, and regression steps.
+- Open Jupyter notebooks in the `notebooks/exploratory` folder to run data loading, preprocessing, segmentation, feature extraction, and crystallinity quantification of each POM image.
+- Open Jupyter notebooks in the `notebooks/final` folder to run regression steps.
   ```
 - Alternatively, use Python scripts in the `src/` folder.
   ```
 
 ## Dependencies:
 - Python 3.8+
-- NumPy: Array operations (`pip install numpy`)
-- OpenCV: Image processing (`pip install opencv-python`)
-- scikit-image: Advanced image processing (`pip install scikit-image`)
-- Matplotlib: Visualization (`pip install matplotlib`)
-- Jupyter Notebook: Interactive coding (`pip install notebook`) or JupyterLab.
+- numpy – Used for numerical operations and array manipulation.
+- opencv-python – For image loading, processing, and visualization.
+- matplotlib – To generate and display figures.
+- scikit-image – Provides advanced image processing functions.
+- scipy – Used for additional image processing tasks.
+- pandas – For handling dataframes.
+- jupyter – Needed to run and execute .ipynb notebooks.
+- tqdm – Adds progress bars for long-running operations.
+- argparse – Enables command-line interface (CLI) functionality.
+- pytest – For unit testing and code validation.
+```
