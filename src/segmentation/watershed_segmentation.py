@@ -1,3 +1,12 @@
+# Module for watershed segmentation algorithm.
+
+# This module contains  a function for segmenting an image using watershed algorith.
+# The function intakes a raw image and markers for segmentation, and outputs a grayscale
+# version of the raw image overlaid with the segmented boundaries. 
+
+# Author: Priyangika Pitawala
+# Date: March 2025
+
 import cv2
 import numpy as np
 

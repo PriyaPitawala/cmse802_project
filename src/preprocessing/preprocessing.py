@@ -1,3 +1,13 @@
+# Module for image preprocessing.
+
+# This module contains functions for preprocessing an image to prepare it for segmentation.
+# It converts the image to grayscale, applies filtering and thresholding, 
+# with optional enhancement of contrast and boundary definition. Furthermore, it computes markers
+# to enable watershed algorithm in latter stages.
+
+# Author: Priyangika Pitawala
+# Date: March 2025
+
 import cv2
 import numpy as np
 

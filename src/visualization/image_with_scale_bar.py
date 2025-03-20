@@ -1,3 +1,11 @@
+# Module for image visualization.
+
+# This module contains functions for visualizing an image to by converting it to the compatible format,
+# and displaying the image with a scale bar matching the calibration of the lens used for capturing the image.
+
+# Author: Priyangika Pitawala
+# Date: March 2025
+
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt

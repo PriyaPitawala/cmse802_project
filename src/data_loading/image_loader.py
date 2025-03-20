@@ -1,3 +1,10 @@
+# Module for image loading.
+
+# This module contains a function for loading an image from a specified image path.
+
+# Author: Priyangika Pitawala
+# Date: March 2025
+
 import cv2
 import numpy as np
 
