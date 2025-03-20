@@ -1,4 +1,7 @@
-# cmse802_project
+# Documentation (`/docs/`)
+
+This directory contains the documentation on the project including the project description, structure, and dependencies.
+
 
 ## Project Title: Image Analysis and Percent Crystallinity Quantification
 
@@ -20,32 +23,36 @@ This project involves creating a Python-based tool that processes polarized opti
 ## Folder Structure:
 cmse802_project/
 │
-├── data/									# Store all data files
-│   ├── raw/             					# Raw, unprocessed data
-│   ├── preprocessed/    					# Preprocessed data
-│   ├── processed/       					# Segmented/processed data
+├── data/									         # Store all data files (not committed to GitHub)
+│   ├── raw/             					      # Raw, unprocessed data
+│   ├── preprocessed/    					      # Preprocessed data
+│   ├── processed/       					      # Segmented/processed data
 │
-├── notebooks/           					# Jupyter notebooks
+├── notebooks/           					 # Jupyter notebooks
 │   ├── exploratory/
 │   ├── final/
 │
-├── src/             	  					# Python scripts
-│   ├── data_loading/						# Image loading script
-│   ├── preprocessing/ 					# Preprocessing functions
-│   ├── segmentation/	 					# Segmentation functions (watershed algorithm)
-│   ├── feature_extraction/				# Extracting the features of percent crystallinity
+├── src/             	  					 # Python scripts
+│   ├── data_loading/						        # Image loading script
+│   ├── preprocessing/ 					        # Preprocessing functions
+│   ├── segmentation/	 					        # Segmentation functions (watershed algorithm)
+│   ├── feature_extraction/				      # Extracting the features of percent crystallinity
 │   ├── crystallinity_quantification/	 	# Statistical calculations of percent crystallinity
-│   ├── regression/      					# Regression analysis for property correlation
-│   ├── visualization/      					# Scripts for displaying images and plots
+│   ├── regression/      					      # Regression analysis for property correlation
+│   ├── visualization/      					  # Scripts for displaying images and plots
 │
-├── results/             					# Store results such as figures, plots, and output data
-│   ├── figures/         					# Visualizations and plots
-│   ├── tables/          					# Tabular results
+├── results/             					 # Store results such as figures, plots, and output data (not committed to GitHub)
+│   ├── figures/         					      # Visualizations and plots
+│   ├── tables/          					      # Tabular results
 │
-├── tests/               					# Unit tests for scripts
-├── config/
-├── .gitignore           					# Specify files/directories to ignore in Git
-└── README.md            					# Documentation for the project
+├── reports/             					 # Store progress reports on the project
+│   ├── interim/         					      
+│   ├── final/          					      
+│
+├── tests/               					 # Unit tests for scripts
+├── env/               					   # Project environment (not committed to GitHub)
+├── .gitignore           					 # Specify files/directories to ignore in Git
+└── docs/            					     # Documentation for the project
 
 
 ## Instructions for Setting Up and Running the Code:
