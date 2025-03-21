@@ -59,3 +59,45 @@ class TestImageScaleBar(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+class TestRealScaleBar(unittest.TestCase):
+
+    def setUp(self):
+        self.image_path = "tests/data/image_with_real_scale_bar.tif"
+        if not os.path.exists(self.image_path):
+            self.skipTest("Real scale bar image not found. Please add it to tests/data/")
+
+        self.expected_scale_length_pixels = 130  # This is what display_image() uses
+        self.scale_region_fraction = 0.25  # Only look at bottom-right corner
+
+    def test_real_scale_bar_length(self):
+        img = cv2.imread(self.image_path)
+        img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+        h, w = img_gray.shape
+        cropped = img_gray[int(h*(1 - self.scale_region_fraction)):, int(w*(1 - self.scale_region_fraction)):]
+
+        # Apply thresholding to isolate the scale bar
+        _, thresh = cv2.threshold(cropped, 220, 255, cv2.THRESH_BINARY)  # works well for white bar
+        contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        if not contours:
+            self.fail("No contours detected — scale bar may not be visible or threshold may be incorrect.")
+
+        # Find the longest contour (assume it's the scale bar)
+        largest_contour = max(contours, key=cv2.contourArea)
+        x, y, w_bar, h_bar = cv2.boundingRect(largest_contour)
+
+        actual_scale_length = max(w_bar, h_bar)  # Use max in case it’s vertical
+
+        print(f"\n📏 Detected actual scale bar length: {actual_scale_length} pixels")
+
+        # Compare to expected length from your display_image()
+        tolerance = 5  # pixels
+        self.assertTrue(
+            abs(actual_scale_length - self.expected_scale_length_pixels) <= tolerance,
+            f"Scale bar pixel length ({actual_scale_length}) does not match expected ({self.expected_scale_length_pixels})"
+        )
+
+if __name__ == "__main__":
+    unittest.main()
