@@ -13,6 +13,7 @@ This directory contains unit tests to validate the correctness of the project’
 - `output/` contains saved debugging outputs for the unit tests.
 - `preprocessing_old.py` contains the functions that can sucessfully compute markers for segmenting Maltese crosses.
 - `preprocessing.py` is undergoing debugging to attempt segmenting spherulites.
+- `test_segmentation.py` computes the markers for segmentation using the sucessful proeprocessing module version (currently its is `preprocessing.py`).
 
 ## Running Tests
 To run all tests, use:
