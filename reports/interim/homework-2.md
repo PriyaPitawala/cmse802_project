@@ -133,8 +133,40 @@ Create a `README.md` for each directory explaining its purpose and contents.
 Provide a diagram or textual description of your code structure below.
 
 ```python
-# You can use this cell to sketch your code structure or demonstrate key components
-# For example, show the relationships between your modules or a sample directory tree
+## Folder Structure:
+cmse802_project/
+│
+├── data/									         # Store all data files (not committed to GitHub)
+│   ├── raw/             					      # Raw, unprocessed data
+│   ├── preprocessed/    					      # Preprocessed data
+│   ├── processed/       					      # Segmented/processed data
+│
+├── notebooks/           					 # Jupyter notebooks
+│   ├── exploratory/
+│   ├── final/
+│
+├── src/             	  					 # Python scripts
+│   ├── data_loading/						        # Image loading script
+│   ├── preprocessing/ 					        # Preprocessing functions
+│   ├── segmentation/	 					        # Segmentation functions (watershed algorithm)
+│   ├── feature_extraction/				      # Extracting the features of percent crystallinity
+│   ├── crystallinity_quantification/	 	# Statistical calculations of percent crystallinity
+│   ├── regression/      					      # Regression analysis for property correlation
+│   ├── visualization/      					  # Scripts for displaying images and plots
+│
+├── results/             					 # Store results such as figures, plots, and output data (not committed to GitHub)
+│   ├── figures/         					      # Visualizations and plots
+│   ├── tables/          					      # Tabular results
+│
+├── reports/             					 # Store progress reports on the project
+│   ├── interim/         					      
+│   ├── final/          					      
+│
+├── tests/               					 # Unit tests for scripts
+├── env/               					   # Project environment (not committed to GitHub)
+├── .gitignore           					 # Specify files/directories to ignore in Git
+└── docs/            					     # Documentation for the project
+
 ```
 
 ### Documentation Strategy
@@ -195,7 +227,7 @@ def preprocess_data(data, normalize=True, handle_missing=True):
     pass
 ```
 
-✏️ Answer:
+✏️ Answer: All documentation can be seen in the GitHub repository for the project (https://github.com/PriyaPitawala/cmse802_project.git). The summary of project can be found in `docs/` subfolder.
 
 ## 2. Data/Problem Understanding
 
@@ -245,7 +277,22 @@ Outline your approach to implementing your data processing pipeline or algorithm
 - Plan computational strategies
 - Consider efficiency and optimization approaches
 
-✏️ Answer:
+✏️ Answer:  
+
+My project is data-focused, and all visualization, validation, and tuning can be seen in the exploratory notebooks in the `notebooks/` subfolder. The folder also contains a `README.md` file documenting issues, findings, and insights.
+
+1. Key steps and dependencies: 
+    - data loading step of polarized optical microscope (POM) images, preprocessing step to prepare for image segmentation, segmentation step using watershed algorithm, feature extraction step, percent crystallinity quantification step, and regression and visualization step. All steps are separated into modules and can be found inside the `src/` subfolder.
+    - dependencies are numpy, matplotlib, opencv-python, scikit-image, scipy, and pandas. Comprehensive list can be found in `requirements.txt` file inside the `docs/` subfolder.
+2. Preprocessing requirements:
+    - grayscale conversion as image segmentation doesn't require color channels, noise reduction using Gaussian blur and further filtering, edge detection using Canny operators, gradient magnitude thresholding to highlight crystal boundaries, morphological operations to clean the binary image, and computation of segmentation markers.
+3. Computational strategies:
+    - Separate modules for handling the key steps.
+    - Interactive exploration, real-time parameter tuning, and segmentation validation using Jupyter notebooks.
+    - Vectorization of the image processing steps using NumPy and/or SciPy.
+4. Efficiency and optimization approaches:
+    - Version control by intermittently committing the progress to  GitHub, especially prior to tuning parameters to optimize segemntation.
+    - Image downsampling by removing unnecassary information such as color channels. 
 
 ## 3. Unit Testing Framework
 
