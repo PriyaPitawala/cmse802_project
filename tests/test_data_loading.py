@@ -5,7 +5,6 @@
 # Author: Priyangika Pitawala
 # Date: March 2025
 
-# test_pipeline.py
 
 import unittest
 import numpy as np
