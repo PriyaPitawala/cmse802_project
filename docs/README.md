@@ -33,7 +33,7 @@ cmse802_project/
 │   ├── final/
 │
 ├── src/             	  					 # Python scripts
-│   ├── data_loading/						        # Image loading script
+│   ├── data_loading/						        # Image loading scripts
 │   ├── preprocessing/ 					        # Preprocessing functions
 │   ├── segmentation/	 					        # Segmentation functions (watershed algorithm)
 │   ├── feature_extraction/				      # Extracting the features of percent crystallinity
