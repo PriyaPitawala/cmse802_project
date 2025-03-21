@@ -13,3 +13,4 @@ This directory contains all the source code for the project, including scripts a
 
 ## Notes
 - All source codes are designed to be used without modifications to the files. Any optional parameter changes can be carried out through the notebooks.
+- Spatial calibration for the images is overlaid with the dimensions specified in `data_loading/scale_bar_config.py`.
