@@ -10,164 +10,101 @@
 
 import cv2
 import numpy as np
+from skimage.feature import peak_local_max
+from scipy import ndimage as ndi
+from scipy.ndimage import gaussian_filter
 
-def preprocess_image(image: np.ndarray, blur_kernel=(5,5), threshold_method=cv2.THRESH_BINARY, 
-                     threshold_value=127, adaptive=False, block_size=11, C=2,
-                     use_edge_detection=False, edge_low_threshold=50, edge_high_threshold=150,
-                     use_gradient_thresholding=False, enhance_contrast=False, detect_grain_boundaries=False,
-                     merge_inner_outer=False, morph_kernel_size=(5,5)):
-    """
-    Preprocesses an image for segmentation, with optional edge detection, gradient thresholding,
-    contrast enhancement (CLAHE), grain boundary detection, and inner-outer region merging.
 
-    Parameters:
-    - image (np.ndarray): Input image in BGR format.
-    - blur_kernel (tuple): Kernel size for Gaussian blur.
-    - threshold_method (int): OpenCV thresholding method.
-    - threshold_value (int): Global threshold value (ignored if adaptive=True).
-    - adaptive (bool): If True, use adaptive thresholding.
-    - block_size (int): Size of the neighborhood for adaptive thresholding.
-    - C (int): Constant subtracted from the mean in adaptive thresholding.
-    - use_edge_detection (bool): If True, apply Canny edge detection.
-    - edge_low_threshold (int): Lower threshold for Canny edge detection.
-    - edge_high_threshold (int): Upper threshold for Canny edge detection.
-    - use_gradient_thresholding (bool): If True, apply Laplacian-based gradient thresholding.
-    - enhance_contrast (bool): If True, apply CLAHE to enhance local contrast.
-    - detect_grain_boundaries (bool): If True, apply morphological gradient for boundary detection.
-    - merge_inner_outer (bool): If True, flood-fill inner regions to merge with outer layers.
-    - morph_kernel_size (tuple): Kernel size for morphological operations (closing).
+def preprocess_image(image: np.ndarray, blur_kernel=(5, 5),
+                     enhance_contrast=True,
+                     detect_grain_boundaries=True,
+                     background_threshold=30,
+                     fill_intensity_threshold=60,
+                     variation_threshold=10,
+                     grain_smoothing_kernel=(9, 9),
+                     suppress_dark_edges=True,
+                     known_background_mask: np.ndarray = None,
+                     return_debug=False) -> dict:
+    debug = {}
 
-    Returns:
-    - np.ndarray: Preprocessed binary image.
-    """
-    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    debug['gray'] = gray.copy()
+    original_gray = gray.copy()
+    dark_mask = gray < background_threshold
 
-    # Apply CLAHE for local contrast enhancement
     if enhance_contrast:
-        clahe = cv2.createCLAHE(clipLimit=1.5, tileGridSize=(8,8))
-        gray_image = clahe.apply(gray_image)
+        clahe = cv2.createCLAHE(clipLimit=1.5, tileGridSize=(8, 8))
+        gray = clahe.apply(gray)
+        debug['clahe'] = gray.copy()
 
-    # Apply Gaussian Blur
-    image_blur = cv2.GaussianBlur(gray_image, blur_kernel, 0)
-    
-    # Apply thresholding
-    if adaptive:
-        processed = cv2.adaptiveThreshold(image_blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
-                                          threshold_method, block_size, C)
-    else:
-        _, processed = cv2.threshold(image_blur, threshold_value, 255, threshold_method)
+    smoothed = cv2.GaussianBlur(gray, blur_kernel, 0)
+    debug['blurred'] = smoothed.copy()
 
-    # Apply edge detection if enabled
-    if use_edge_detection:
-        edges = cv2.Canny(processed, edge_low_threshold, edge_high_threshold)
-        processed = cv2.bitwise_or(processed, edges)  # Merge edges into thresholded image
-
-    # Apply gradient-based thresholding if enabled
-    if use_gradient_thresholding:
-        gradient = cv2.Laplacian(processed, cv2.CV_64F)  # Compute Laplacian
-        gradient = cv2.convertScaleAbs(gradient)  # Convert to 8-bit format
-        processed = cv2.bitwise_or(processed, gradient)  # Merge with thresholded image
-
-    # Apply grain boundary detection
     if detect_grain_boundaries:
-        kernel = np.ones(morph_kernel_size, np.uint8)
-        grain_boundaries = cv2.morphologyEx(gray_image, cv2.MORPH_GRADIENT, kernel)
-        processed = cv2.bitwise_or(processed, grain_boundaries)  # Merge grain boundaries with existing features
+        kernel = np.ones(grain_smoothing_kernel, np.uint8)
+        gradient = cv2.morphologyEx(smoothed, cv2.MORPH_GRADIENT, kernel)
+    else:
+        gradient = smoothed.copy()
 
-    # Merge inner and outer regions using flood-fill
-    if merge_inner_outer:
-        floodfilled_image = processed.copy()
-        h, w = floodfilled_image.shape[:2]
-        mask = np.zeros((h+2, w+2), np.uint8)  # Flood-fill requires a slightly larger mask
+    if suppress_dark_edges:
+        gradient[dark_mask] = 0
+    debug['gradient'] = gradient.copy()
 
-        # Flood-fill from multiple seed points to merge bright inner regions
-        for y in range(0, h, 50):  # Sample grid points for filling
-            for x in range(0, w, 50):
-                if floodfilled_image[y, x] == 255:  # Only fill white regions
-                    cv2.floodFill(floodfilled_image, mask, (x, y), 128)  # Fill with gray (128)
+    _, edges_binary = cv2.threshold(gradient, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    debug['edges'] = edges_binary.copy()
 
-        # Convert all filled regions back to white (255)
-        floodfilled_image[floodfilled_image == 128] = 255
+    contours, _ = cv2.findContours(edges_binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    filled_mask = np.zeros_like(edges_binary)
 
-        # Apply Morphological Closing to Connect Gaps
-        processed = cv2.morphologyEx(floodfilled_image, cv2.MORPH_CLOSE, kernel)
+    for contour in contours:
+        contour_mask = np.zeros_like(edges_binary)
+        cv2.drawContours(contour_mask, [contour], -1, color=255, thickness=-1)
+        mean_intensity = cv2.mean(original_gray, mask=contour_mask)[0]
+        std_dev = np.std(original_gray[contour_mask == 255])
 
-    # Remove small white noise in the preprocessed image before computing markers
-    opening_kernel = np.ones((3,3), np.uint8)
-    processed = cv2.morphologyEx(processed, cv2.MORPH_OPEN, opening_kernel, iterations=1)
+        if mean_intensity >= fill_intensity_threshold and std_dev >= variation_threshold:
+            filled_mask = cv2.bitwise_or(filled_mask, contour_mask)
+
+    debug['filled_mask'] = filled_mask.copy()
+
+    combined_mask = cv2.bitwise_or(edges_binary, filled_mask)
+
+    if known_background_mask is not None:
+        combined_mask[known_background_mask == 255] = 0
+        debug['background_mask'] = known_background_mask.copy()
+
+    debug['combined_mask'] = combined_mask.copy()
+    debug['final_mask'] = combined_mask.copy()
+
+    return debug if return_debug else combined_mask
 
 
-    return processed
-
-def compute_markers(binary_image: np.ndarray, morph_kernel_size=(3,3), dilation_iter=1, 
-                    dist_transform_factor=0.4, min_foreground_area=50):
-    """
-    Computes markers for watershed segmentation.
-    """
+def compute_markers(binary_image: np.ndarray, morph_kernel_size=(3, 3), dilation_iter=2,
+                    dist_transform_factor=0.3, min_foreground_area=50) -> np.ndarray:
     kernel = np.ones(morph_kernel_size, np.uint8)
-
-    # Step 1: Remove noise using morphological opening
     opening = cv2.morphologyEx(binary_image, cv2.MORPH_OPEN, kernel, iterations=2)
-
-    # Debug 1: Display the result after morphological opening
-    cv2.imshow("Morphological Opening", opening)
-    cv2.waitKey(0)
-
-    # Step 2: Define the background region
     sure_bg = cv2.dilate(opening, kernel, iterations=dilation_iter)
 
-    # Debug 2: Display sure background
-    cv2.imshow("Sure Background", sure_bg)
-    cv2.waitKey(0)
+    edges = cv2.Canny(binary_image, 50, 150)
+    suppress_mask = cv2.bitwise_not(edges)
+    masked_fill = cv2.bitwise_and(opening, opening, mask=suppress_mask)
 
-    # **Key Fix: Ensure Distance Transform Input Is Not Fully White**
-    opening_uint8 = np.uint8(opening)  # Ensure proper format
+    dist_transform = cv2.distanceTransform(masked_fill, cv2.DIST_L2, 5)
+    dist_transform = gaussian_filter(dist_transform, sigma=1.0)
 
-    # Invert binary image if needed (to make sure foreground is detected correctly)
-    foreground_mask = cv2.bitwise_not(opening_uint8)
-    cv2.imshow("Foreground Mask for Distance Transform", foreground_mask)
-    cv2.waitKey(0)
+    coordinates = peak_local_max(dist_transform, labels=masked_fill, footprint=np.ones((3, 3)), min_distance=5)
+    local_max = np.zeros_like(dist_transform, dtype=bool)
+    local_max[tuple(coordinates.T)] = True
+    markers, _ = ndi.label(local_max)
 
-    # Step 3: Verify Binary Image Before Distance Transform
-    binary_check = np.uint8(opening > 0) * 255  # Ensure proper binary format
-    cv2.imshow("Binary Image Before Distance Transform", binary_check)
-    cv2.waitKey(0)
-
-
-    # Step 3: Compute Distance Transform
-    dist_transform = cv2.distanceTransform(opening_uint8, cv2.DIST_L2, 5)
-
-    # Normalize the distance transform to remove the vertical gradient effect
-    dist_transform = cv2.normalize(dist_transform, None, 0, 255, cv2.NORM_MINMAX)
-
-    # Debug 3: Display the normalized distance transform
-    cv2.imshow("Normalized Distance Transform", dist_transform.astype(np.uint8))
-    cv2.waitKey(0)
-
-    # Step 4: Threshold the distance transform to obtain sure foreground
-    _, sure_fg = cv2.threshold(dist_transform, dist_transform_factor * dist_transform.max(), 255, 0)
-    sure_fg = np.uint8(sure_fg)
-
-    # Debug 4: Display the sure foreground after thresholding
-    cv2.imshow("Sure Foreground", sure_fg)
-    cv2.waitKey(0)
-
-    # Step 5: Compute unknown region
-    unknown = cv2.subtract(sure_bg, sure_fg)
-
-    # Step 6: Label connected components
-    _, markers = cv2.connectedComponents(sure_fg)
-
-    # Debug 5: Display the connected component markers
-    cv2.imshow("Initial Markers", markers.astype(np.uint8) * 50)
-    cv2.waitKey(0)
-
-    # Step 7: Adjust marker labels
-    markers = markers + 1
+    unknown = cv2.subtract(sure_bg, masked_fill)
     markers[unknown == 255] = 0
 
-    # Debug 6: Display the final marker image before returning
-    cv2.imshow("Final Markers", markers.astype(np.uint8) * 50)
-    cv2.waitKey(0)
-
     return markers
+
+
+def visualize_markers(markers: np.ndarray) -> np.ndarray:
+    display = cv2.applyColorMap(cv2.convertScaleAbs(markers, alpha=10), cv2.COLORMAP_JET)
+    display[markers == 1] = [0, 0, 0]
+    display[markers == 0] = [255, 255, 255]
+    return display

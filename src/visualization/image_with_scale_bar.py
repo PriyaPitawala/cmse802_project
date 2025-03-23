@@ -2,6 +2,7 @@
 
 # This module contains functions for visualizing an image to by converting it to the compatible format,
 # and displaying the image with a scale bar matching the calibration of the lens used for capturing the image.
+# Values for calibration is imported from scale_bar_config.py.
 
 # Author: Priyangika Pitawala
 # Date: March 2025
@@ -26,6 +27,16 @@ from data_loading.scale_bar_config import (
 rcParams["font.family"] = FONT_FAMILY
 
 def convert_to_displayable(image: np.ndarray) -> np.ndarray:
+
+    """
+    Converts an image to displayable format (uint8, 3-channel BGR).
+
+    Parameters:
+    -  image (np.ndarray): Grayscale, float, or high-bit-depth image.
+
+    Returns:
+    - np.ndarray: Loaded image in BGR format.
+    """
     if image.dtype in [np.int32, np.int64]:
         image = image.astype(np.uint8)
     elif image.dtype in [np.float32, np.float64]:
@@ -37,6 +48,21 @@ def convert_to_displayable(image: np.ndarray) -> np.ndarray:
     return image
 
 def display_image(image: np.ndarray, title="Image"):
+
+    """
+    Displays the image using matplotlib with a scale bar overlay.
+
+    Parameters:
+    -  image (np.ndarray): Any image.
+
+    Features:
+    - Converts grayscale, float, or high-bit-depth images to 8-bit, 3-channel BGR format for display.
+    - Overlays a scale bar with customizable dimensions, font, and positioning in the lower-right corner.
+    - Draws a white background box behind the scale bar and label to ensure readability.
+    - Uses configuration parameters from `scale_bar_config.py` for consistent appearance across datasets.
+
+    """
+
     image = convert_to_displayable(image)
     height, width = image.shape[:2]
 

@@ -331,7 +331,8 @@ class TestYourImplementation(unittest.TestCase):
         self.assertEqual(result, expected_output)
 ```
 
-✏️ Answer:
+✏️ Answer:  
+Unit testing has been performed for the imnage_loader.py, image_with_scale_bar.py, preprocessing.py, preprocessing_old.py, watershed_segmentation.py modules. The testing modules and the documentation for testing is in the `tests/` subfolder.
 
 ## 4. Initial Implementation
 
@@ -364,7 +365,9 @@ Create visualizations to analyze your initial results:
 # Visualization code here
 ```
 
-✏️ Answer:
+✏️ Answer:  
+
+All data loading, preprocessing, processing, and feature extraction outputs are verified by visualization inside the exploratory notebooks using the image_with_scale_bar.py module. Notes on insights from the visualizations are provided in the `README.md` documentation inside the `notebooks/` subfolder.
 
 ## 5. Progress Report
 
@@ -383,7 +386,15 @@ Explain how specific concepts from the course are being applied in your project:
 - Explain how these concepts informed your approach
 - Describe how course materials helped overcome specific challenges
 
-✏️ Answer:
+✏️ Answer:  
+
+1. Project Progress Assessment:
+    - I have worked on initial research, data preparation, gradient computation, and watershed algorithm steps which are supposed to be completed by Week 10 as detailed in my Gantt chart. 
+    - I have already started on feature extraction as part of the crystallization quatification scheduled to be started in Week 11. However, the feature extraction step has shown that the image segmentation (and therefore, the preprocessing) step must be optimized further to improve the accuracy. Nevertheless, the current model is providing an acceptable result and framework to qualitatively compare all my POM images.
+    -   Week 11-12: Refine image segmentation further; extract the crystallinity features; calculate percent crystallinity.  
+        Week 13: Regression analysis and model interpretation.  
+        Week 14: Finalize analysis and data visualization. 
+    - No scope adjustment is needed if the segmentation can be refined before Week 12. However, if more time is needed to achieve that, the scope will be adjusted to qualitative rank each image for percent crystallinity based on the model performance, instead of calculating a quantitative number. 
 
 ## Congratulations, you're done!
 

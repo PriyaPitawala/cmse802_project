@@ -3,7 +3,7 @@
 This directory contains datasets used for analysis and modeling.
 
 ## Contents
-- `raw/` - Raw, unprocessed data.
+- `raw/` - Raw, unprocessed data (hidden from GitHub)
 - `preprocessed/` - Preprocessed data.
 - `processed/` - Cleaned data for analysis.
 - `README.md` - Documentation on data sources and contents of directory.

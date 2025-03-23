@@ -23,8 +23,8 @@ This project involves creating a Python-based tool that processes polarized opti
 ## Folder Structure:
 cmse802_project/
 │
-├── data/									         # Store all data files (not committed to GitHub)
-│   ├── raw/             					      # Raw, unprocessed data
+├── data/									         # Store all data files 
+│   ├── raw/             					      # Raw, unprocessed data (not committed to GitHub)
 │   ├── preprocessed/    					      # Preprocessed data
 │   ├── processed/       					      # Segmented/processed data
 │
@@ -86,7 +86,4 @@ cmse802_project/
 - scipy – Used for additional image processing tasks.
 - pandas – For handling dataframes.
 - jupyter – Needed to run and execute .ipynb notebooks.
-- tqdm – Adds progress bars for long-running operations.
-- argparse – Enables command-line interface (CLI) functionality.
-- pytest – For unit testing and code validation.
 ```
