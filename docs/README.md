@@ -86,4 +86,7 @@ cmse802_project/
 - scipy – Used for additional image processing tasks.
 - pandas – For handling dataframes.
 - jupyter – Needed to run and execute .ipynb notebooks.
+
+## Notes:
+- ChatGPT was utilized for drafting python codes and troubleshooting errors.
 ```
