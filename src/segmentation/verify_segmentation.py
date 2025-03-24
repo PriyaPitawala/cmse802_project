@@ -52,3 +52,29 @@ def overlay_combined_boundaries(foreground_mask: np.ndarray,
     fg_rgb[edge_boundaries > 0] = color_edges
 
     return fg_rgb
+
+def overlay_labels_as_boundaries(base_image: np.ndarray,
+                                 label_mask: np.ndarray,
+                                 color: tuple = (0, 0, 255)) -> np.ndarray:
+    """
+    Overlays label boundaries on a base image.
+
+    Parameters:
+    - base_image (np.ndarray): Grayscale or binary image (2D), used as background.
+    - label_mask (np.ndarray): Labeled regions to extract boundaries from.
+    - color (tuple): BGR color to overlay the boundaries.
+
+    Returns:
+    - overlay (np.ndarray): BGR image with boundaries highlighted.
+    """
+    # Convert base to BGR for overlay
+    if len(base_image.shape) == 2:
+        base_bgr = cv2.cvtColor(base_image, cv2.COLOR_GRAY2BGR)
+    else:
+        base_bgr = base_image.copy()
+
+    # Get boundaries via Laplacian
+    boundary_mask = cv2.Laplacian(label_mask.astype(np.uint8), cv2.CV_8U)
+    base_bgr[boundary_mask > 0] = color
+
+    return base_bgr
