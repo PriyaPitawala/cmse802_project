@@ -1,3 +1,11 @@
+# Module for visual verification of segmentation.
+
+# This module contains functions for returning an overlay of the segmented boundaries over a 
+# preprocessed image to validate and tune the performance of the segmentation algorithms.
+
+# Author: Priyangika Pitawala
+# Date: March 2025
+
 import cv2
 import numpy as np
 

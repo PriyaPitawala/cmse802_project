@@ -1,3 +1,12 @@
+# Module for extraction of crystallinity features.
+
+# This module contains functions for cleaning the segmented labels and removing boundary regions from segmentation,
+# extracting the features from the cleaned labels, and returning an image of the grayscale of a raw image overlaid
+# with bounding boxes and labelled text for each segmented region.
+
+# Author: Priyangika Pitawala
+# Date: March 2025
+
 import numpy as np
 import pandas as pd
 import cv2

@@ -1,3 +1,12 @@
+# Module for edge-based segmentation.
+
+# This module contains a function for processing a grayscale image and generating a binary image of the foreground,and 
+# detecting the boundaries between the white regions surrounded by the black environment. 
+# This is an edge-based segmentation method.
+
+# Author: Priyangika Pitawala
+# Date: March 2025
+
 import cv2
 import numpy as np
 

@@ -1,3 +1,12 @@
+# Module for image preprocessing specifically to segment Maltese crosses.
+
+# This module contains functions for preprocessing an image to prepare it for segmentation of Maltese crosses.
+# It converts the image to grayscale, enhances contrast (if enabled), applies a Gaussian blur to smooth over noise, and
+# applies adaptive thresholding (if enabled).
+
+# Author: Priyangika Pitawala
+# Date: March 2025
+
 import cv2
 import numpy as np
 

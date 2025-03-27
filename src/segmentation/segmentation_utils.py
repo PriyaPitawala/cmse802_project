@@ -1,3 +1,11 @@
+# Module for additional functions for segmentation.
+
+# This module contains a function for computing markers necessary to segment an image using watershed algorithm.
+# It performs morphological operations, distance transformation, and filtering of noise.
+
+# Author: Priyangika Pitawala
+# Date: March 2025
+
 import cv2
 import numpy as np
 

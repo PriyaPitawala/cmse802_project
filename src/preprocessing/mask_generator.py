@@ -1,3 +1,12 @@
+# Module for generating masks for foreground and background of the image.
+
+# This module contains functions for preprocesing a raw image by converting to grayscale and enhancing contrast (if enabled), 
+# computing masks for the foreground and background, removing noise (defined to be smaller than a specified size), and returning
+# a grayscale of the raw image overlaid with the removed regions for visual verification.
+
+# Author: Priyangika Pitawala
+# Date: March 2025
+
 import cv2
 import numpy as np
 from data_loading import scale_bar_config

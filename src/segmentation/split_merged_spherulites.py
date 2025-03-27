@@ -1,3 +1,12 @@
+# Module for splitting merged spherulite segments.
+
+# This module contains a function for spiltting segmented regions containing multiple spherulites merged
+# as one. It uses gradient-based watershed segmentation on the foreground of the image to identify merged
+# regions.
+
+# Author: Priyangika Pitawala
+# Date: March 2025
+
 import cv2
 import numpy as np
 
