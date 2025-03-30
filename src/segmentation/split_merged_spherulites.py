@@ -9,6 +9,9 @@
 
 import cv2
 import numpy as np
+from skimage.feature import peak_local_max
+from scipy import ndimage as ndi
+
 
 def split_merged_spherulites(gray_image: np.ndarray,
                               edge_labels: np.ndarray,
@@ -51,16 +54,19 @@ def split_merged_spherulites(gray_image: np.ndarray,
         grad_mag = cv2.convertScaleAbs(grad_mag)
         grad_mag = cv2.bitwise_and(grad_mag, grad_mag, mask=mask)
 
-        # Distance transform on mask
+        # Distance transform
         dist = cv2.distanceTransform(mask, cv2.DIST_L2, 5)
-        _, sure_fg = cv2.threshold(dist, dist_thresh_factor * dist.max(), 255, 0)
-        sure_fg = np.uint8(sure_fg)
+
+        # Use peak_local_max for marker seeds
+        coordinates = peak_local_max(dist, labels=mask, min_distance=10, exclude_border=False)
+        local_maxi = np.zeros_like(dist, dtype=bool)
+        local_maxi[tuple(coordinates.T)] = True
+
+        # Label the seed points
+        markers = ndi.label(local_maxi)[0]
 
         # Watershed markers
-        unknown = cv2.subtract(mask, sure_fg)
-        num_markers, markers = cv2.connectedComponents(sure_fg)
         markers += 1
-        markers[unknown == 255] = 0
 
         # Convert grayscale to BGR for watershed
         region_bgr = cv2.cvtColor(region_gray, cv2.COLOR_GRAY2BGR)
