@@ -146,7 +146,7 @@ cmse802_project/
 │   ├── final/
 │
 ├── src/             	  					 # Python scripts
-│   ├── data_loading/						        # Image loading script
+│   ├── data_loading/						        # Image loading scripts
 │   ├── preprocessing/ 					        # Preprocessing functions
 │   ├── segmentation/	 					        # Segmentation functions (watershed algorithm)
 │   ├── feature_extraction/				      # Extracting the features of percent crystallinity
@@ -282,10 +282,10 @@ Outline your approach to implementing your data processing pipeline or algorithm
 My project is data-focused, and all visualization, validation, and tuning can be seen in the exploratory notebooks in the `notebooks/` subfolder. The folder also contains a `README.md` file documenting issues, findings, and insights.
 
 1. Key steps and dependencies: 
-    - data loading step of polarized optical microscope (POM) images, preprocessing step to prepare for image segmentation, segmentation step using watershed algorithm, feature extraction step, percent crystallinity quantification step, and regression and visualization step. All steps are separated into modules and can be found inside the `src/` subfolder.
+    - data loading step of polarized optical microscope (POM) images, preprocessing step to prepare for image segmentation, segmentation step using edge based techniques and watershed algorithm, feature extraction step, percent crystallinity quantification step, and regression and visualization step. All steps are separated into modules and can be found inside the `src/` subfolder.
     - dependencies are numpy, matplotlib, opencv-python, scikit-image, scipy, and pandas. Comprehensive list can be found in `requirements.txt` file inside the `docs/` subfolder.
 2. Preprocessing requirements:
-    - grayscale conversion as image segmentation doesn't require color channels, noise reduction using Gaussian blur and further filtering, edge detection using Canny operators, gradient magnitude thresholding to highlight crystal boundaries, morphological operations to clean the binary image, and computation of segmentation markers.
+    - grayscale conversion as image segmentation doesn't require color channels, noise reduction using Gaussian blur and further filtering, masking of known foreground and background, edge detection using Canny operators, gradient magnitude thresholding to highlight crystal boundaries, morphological operations to clean the binary image, and computation of segmentation markers.
 3. Computational strategies:
     - Separate modules for handling the key steps.
     - Interactive exploration, real-time parameter tuning, and segmentation validation using Jupyter notebooks.
@@ -395,6 +395,14 @@ Explain how specific concepts from the course are being applied in your project:
         Week 13: Regression analysis and model interpretation.  
         Week 14: Finalize analysis and data visualization. 
     - No scope adjustment is needed if the segmentation can be refined before Week 12. However, if more time is needed to achieve that, the scope will be adjusted to qualitative rank each image for percent crystallinity based on the model performance, instead of calculating a quantitative number. 
+
+2. Course Concept Application:
+    - Version control: I have used version control in my project to update the github repository as I'm working. I have also recalled some of the previous versions when needed. For example, the preprocessing_old.py module was created after recalling a prior version of preprocessing.py module, when I realized that it is capable of segmenting Maltese crosses. This has given me the ability to simultaneously work on segmenting spherulites and Maltese crosses, thus, improving my model.
+
+    - Optimization: I have optimized my model by removing color channels. This has made cell execution faster in my notebooks. 
+
+    -Unit testing: I unit tested the image_with_scale_bar.py module and added a section to verify that the spatial calibration I have specified matches that of a real scale bar. Through the unit test, I identified that the equivalent number of pixels specified was off by 7 units, and was able to fix the scale bar configurations.
+
 
 ## Congratulations, you're done!
 

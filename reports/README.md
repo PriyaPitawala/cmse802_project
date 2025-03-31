@@ -7,4 +7,4 @@ This directory contains progress reports and homework assignments related to the
 - `final/` - Final documentation of the results and conclusions.
 
 ## Notes
-- `interim/` contains HW1 and HW2 files.
+- `interim/` contains HW1 and HW2 files, as well as the interim progress report.
