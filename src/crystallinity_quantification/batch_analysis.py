@@ -15,8 +15,12 @@ def process_and_append_sample(
     features_df: pd.DataFrame,
     image_shape: tuple,
     metadata: dict,
+    quality_weight: float = 1.0,
+    notes: str = "",  # New notes parameter
     output_csv_name: str = "crystallinity_summary_all_images.csv"
 ):
+
+
     """
     Plots histogram and appends crystallinity summary for a single image to a global CSV.
     If the image_id already exists in the CSV, it will be overwritten.
@@ -46,6 +50,10 @@ def process_and_append_sample(
         metadata=metadata
     )
 
+    # Attach segmentation quality score
+    summary_df["segmentation_quality"] = quality_weight
+    summary_df["notes"] = notes
+
     # Append or update
     if os.path.exists(output_csv_path):
         existing = pd.read_csv(output_csv_path)
@@ -56,3 +64,10 @@ def process_and_append_sample(
 
     updated.to_csv(output_csv_path, index=False)
     print(f"✔ Summary for {image_id} saved to:\n{output_csv_path}")
+
+    features_dir = os.path.join(project_root, "results", "features")
+    os.makedirs(features_dir, exist_ok=True)
+
+    features_path = os.path.join(features_dir, f"{image_id}_features.csv")
+    features_df.to_csv(features_path, index=False)
+
