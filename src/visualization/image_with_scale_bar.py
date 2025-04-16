@@ -1,11 +1,24 @@
-# Module for image visualization.
+"""
+image_with_scale_bar.py
 
-# This module contains functions for visualizing an image to by converting it to the compatible format,
-# and displaying the image with a scale bar matching the calibration of the lens used for capturing the image.
-# Values for calibration is imported from scale_bar_config.py.
+This module provides utilities for visualizing microscopy images with a
+scale bar overlay.
 
-# Author: Priyangika Pitawala
-# Date: March 2025
+It standardizes image display by:
+- Converting raw image formats (e.g., grayscale, float, or 16-bit) into BGR
+  for consistent rendering
+- Overlaying a calibrated scale bar with customizable appearance and label
+- Reading visual parameters from `scale_bar_config.py` to ensure visual
+  consistency across datasets
+
+Intended for use in:
+- Manual image inspection
+- Documentation and figure generation
+- Visualization verification in segmentation workflows
+
+Author: Priyangika Pitawala
+Date: April 2025
+"""
 
 import cv2
 import numpy as np
@@ -23,19 +36,26 @@ from data_loading.scale_bar_config import (
     FONT_SIZE,
 )
 
-# Set global font
+# Apply global font configuration for all matplotlib text
 rcParams["font.family"] = FONT_FAMILY
 
 
 def convert_to_displayable(image: np.ndarray) -> np.ndarray:
     """
-    Converts an image to displayable format (uint8, 3-channel BGR).
+    Converts an input image to displayable format (8-bit 3-channel BGR).
 
-    Parameters:
-    -  image (np.ndarray): Grayscale, float, or high-bit-depth image.
+    This is useful for ensuring compatibility with OpenCV and matplotlib,
+    especially when working with grayscale, float, or high-bit-depth images.
 
-    Returns:
-    - np.ndarray: Loaded image in BGR format.
+    Parameters
+    ----------
+    image : np.ndarray
+        Input image in grayscale, float32/float64, or 16-bit format.
+
+    Returns
+    -------
+    np.ndarray
+        Display-ready image in 8-bit, 3-channel BGR format.
     """
     if image.dtype in [np.int32, np.int64]:
         image = image.astype(np.uint8)
@@ -50,19 +70,26 @@ def convert_to_displayable(image: np.ndarray) -> np.ndarray:
 
 def display_image(image: np.ndarray, title="Image"):
     """
-    Displays the image using matplotlib with a scale bar overlay.
+    Displays the image with an overlaid scale bar and title using matplotlib.
 
-    Parameters:
-    -  image (np.ndarray): Any image.
+    This function:
+    - Converts grayscale or float images to displayable BGR format
+    - Adds a white background box for visual contrast
+    - Draws a calibrated scale bar and label (e.g., "60 µm") at the bottom right
 
-    Features:
-    - Converts grayscale, float, or high-bit-depth images to 8-bit, 3-channel BGR format for display.
-    - Overlays a scale bar with customizable dimensions, font, and positioning in the lower-right corner.
-    - Draws a white background box behind the scale bar and label to ensure readability.
-    - Uses configuration parameters from `scale_bar_config.py` for consistent appearance across datasets.
+    Parameters
+    ----------
+    image : np.ndarray
+        Image to display. Can be grayscale or color, any bit-depth.
 
+    title : str, optional
+        Title for the displayed image (default is "Image").
+
+    Notes
+    -----
+    - Uses visual style parameters from `scale_bar_config.py`
+    - Only renders if the matplotlib backend supports interactive display
     """
-
     image = convert_to_displayable(image)
     height, width = image.shape[:2]
 
@@ -90,7 +117,7 @@ def display_image(image: np.ndarray, title="Image"):
     )
     ax.add_patch(rect)
 
-    # === Draw thick black scale bar ===
+    # === Draw black scale bar ===
     ax.plot(
         [x_start, x_start + SCALE_BAR_PIXELS],
         [y_start, y_start],
@@ -99,7 +126,7 @@ def display_image(image: np.ndarray, title="Image"):
         zorder=3,
     )
 
-    # === Draw text centered above bar ===
+    # === Draw scale bar label ===
     ax.text(
         x_start + SCALE_BAR_PIXELS / 2,
         y_start - SCALE_BAR_BACKGROUND_HEIGHT / 2 + 5,
@@ -112,7 +139,7 @@ def display_image(image: np.ndarray, title="Image"):
         bbox=dict(facecolor="white", edgecolor="none", boxstyle="round,pad=0.2"),
     )
 
+    # Show only in interactive backends
     import matplotlib
-
     if matplotlib.get_backend() != "Agg":
         plt.show()

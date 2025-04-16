@@ -1,76 +1,53 @@
 """
-Unit tests for image_loader.py
+Unit tests for image_loader.py using pytest.
 
-This module verifies the functionality of the `load_image` function which loads
-image files into NumPy arrays using OpenCV. Tests include both valid and invalid
-image path scenarios.
+Tests:
+------
+- Loading a valid image returns a NumPy array with 3 channels
+- Invalid path raises FileNotFoundError
 
-Test Cases:
------------
-- test_load_valid_image: Confirms successful image loading and expected format.
-- test_load_invalid_image_raises: Ensures error is raised for invalid paths.
+Requires: OpenCV, pytest
 
 Author: Priyangika Pitawala
 Date: April 2025
 """
 
-import os
-import sys
-import unittest
 import numpy as np
+import pytest
 import cv2
 
 from data_loading.image_loader import load_image
 
 
-class TestImageLoader(unittest.TestCase):
+@pytest.fixture(scope="module")
+def valid_image_path(tmp_path_factory):
     """
-    Unit tests for the load_image function in image_loader.py
+    Creates a temporary 50x50 white image for testing.
+    Returns the file path.
     """
-
-    def setUp(self):
-        """
-        Creates a valid sample image file for testing and defines
-        both valid and invalid image paths.
-        """
-        self.valid_image_path = os.path.join(
-            os.path.dirname(__file__), "data", "sample_image.jpg"
-        )
-        self.invalid_image_path = "non_existent_path/image.jpg"
-
-        # Create dummy image if not already present
-        if not os.path.exists(self.valid_image_path):
-            dummy_img = np.ones((50, 50, 3), dtype=np.uint8) * 255
-            os.makedirs(os.path.dirname(self.valid_image_path), exist_ok=True)
-            cv2.imwrite(self.valid_image_path, dummy_img)
-
-    def tearDown(self):
-        """
-        Removes the test image created in setUp() to ensure a clean test environment.
-        """
-        if os.path.exists(self.valid_image_path):
-            os.remove(self.valid_image_path)
-
-    def test_load_valid_image(self):
-        """
-        Tests that a valid image is loaded as a NumPy array with 3 color channels (BGR).
-        """
-        image = load_image(self.valid_image_path)
-        self.assertIsInstance(image, np.ndarray)
-        self.assertEqual(image.shape[2], 3)  # Check for 3 channels (color)
-
-    def test_load_invalid_image_raises(self):
-        """
-        Tests that attempting to load an image from an invalid path
-        raises FileNotFoundError.
-        """
-        with self.assertRaises(FileNotFoundError):
-            load_image(self.invalid_image_path)
+    test_dir = tmp_path_factory.mktemp("test_images")
+    img_path = test_dir / "sample_image.jpg"
+    dummy_img = np.ones((50, 50, 3), dtype=np.uint8) * 255
+    cv2.imwrite(str(img_path), dummy_img)
+    return str(img_path)
 
 
-if __name__ == "__main__":
-    # Ensure src is in path when running directly (optional safety)
-    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src"))
-    sys.path.append(project_root)
+@pytest.fixture
+def invalid_image_path():
+    """Returns a guaranteed invalid image path."""
+    return "non_existent_directory/invalid_image.jpg"
 
-    unittest.main()
+
+def test_load_valid_image(valid_image_path):
+    """Test that a valid image loads correctly as a BGR NumPy array."""
+    image = load_image(valid_image_path)
+    assert isinstance(image, np.ndarray)
+    assert image.ndim == 3
+    assert image.shape[2] == 3
+    assert image.dtype == np.uint8
+
+
+def test_load_invalid_image_raises(invalid_image_path):
+    """Test that loading from an invalid path raises FileNotFoundError."""
+    with pytest.raises(FileNotFoundError):
+        load_image(invalid_image_path)
