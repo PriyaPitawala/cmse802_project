@@ -1,3 +1,25 @@
+"""
+plot_crystallinity_trends.py
+
+Provides functions to visualize group-level trends in crystallinity metrics
+(e.g., median diameter or percent crystallinity) as a function of processing
+parameters like light intensity or layer thickness.
+
+Features:
+---------
+- Plots grouped line charts with asymmetric error bars (e.g., IQR).
+- Supports sorting, custom axis limits, and consistent styling for publication.
+- Automatically saves the output figure to a specified path.
+
+Intended Use:
+-------------
+This module is designed for grouped sample analysis and is integrated with
+your crystallinity statistics pipeline.
+
+Author: Priyangika Pitawala
+Date: April 2025
+"""
+
 import os
 import matplotlib.pyplot as plt
 
@@ -28,19 +50,49 @@ def plot_group_trend(
     sort_x=True,
 ):
     """
-    Plots grouped trend with asymmetric error bars (e.g., IQR), grouped by a categorical variable.
+    Plots a grouped trendline with optional asymmetric error bars (e.g., IQR).
 
-    Parameters:
-    - df (pd.DataFrame): DataFrame with aggregated group-level statistics
-    - x_col (str): Column for x-axis (e.g., light_intensity)
-    - y_col (str): Column for y-axis (e.g., weighted_median)
-    - group_col (str): Column to group and color by (e.g., thickness)
-    - x_label (str), y_label (str): Axis labels
-    - output_path (str): Path to save the figure
-    - yerr_lower_col (str or None): Column name for lower error (asymmetric)
-    - yerr_upper_col (str or None): Column name for upper error
-    - ylim (tuple or None), xlim (tuple or None): Axis limits
-    - sort_x (bool): Whether to sort x-axis within groups
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Aggregated DataFrame with group-level statistics.
+
+    x_col : str
+        Column name for x-axis values (e.g., 'light_intensity').
+
+    y_col : str
+        Column name for y-axis values (e.g., 'median_diameter').
+
+    group_col : str
+        Column name to group and color by (e.g., 'thickness').
+
+    x_label : str
+        Label for the x-axis.
+
+    y_label : str
+        Label for the y-axis.
+
+    output_path : str
+        Full path to save the output plot (saved as .png with 300 dpi).
+
+    yerr_lower_col : str, optional
+        Column name for lower bounds of asymmetric error bars.
+
+    yerr_upper_col : str, optional
+        Column name for upper bounds of asymmetric error bars.
+
+    ylim : tuple, optional
+        y-axis limits as (min, max). If None, bottom=0 is enforced.
+
+    xlim : tuple, optional
+        x-axis limits as (min, max). If None, left=0 is enforced.
+
+    sort_x : bool, default=True
+        Whether to sort x-values within each group before plotting.
+
+    Returns
+    -------
+    None. Saves the plot to the specified location.
     """
     plt.figure(figsize=(10, 9))
 
@@ -54,9 +106,10 @@ def plot_group_trend(
         y_vals = group_data[y_col].values
 
         if yerr_lower_col and yerr_upper_col:
-            yerr_lower = group_data[yerr_lower_col].values
-            yerr_upper = group_data[yerr_upper_col].values
-            yerr = [yerr_lower, yerr_upper]
+            yerr = [
+                group_data[yerr_lower_col].values,
+                group_data[yerr_upper_col].values,
+            ]
         else:
             yerr = None
 
@@ -76,15 +129,8 @@ def plot_group_trend(
     plt.xlabel(x_label, fontsize=25)
     plt.ylabel(y_label, fontsize=25)
 
-    if ylim:
-        plt.ylim(ylim)
-    else:
-        plt.ylim(bottom=0)
-
-    if xlim:
-        plt.xlim(xlim)
-    else:
-        plt.xlim(left=0)
+    plt.ylim(ylim if ylim else (0, None))
+    plt.xlim(xlim if xlim else (0, None))
 
     legend = plt.legend(title="Layer Thickness", loc="lower left", title_fontsize=22)
     legend.get_frame().set_edgecolor("black")
@@ -103,4 +149,5 @@ def plot_group_trend(
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     plt.savefig(output_path, dpi=300)
     plt.close()
+
     print(f"✅ Plot saved to {output_path}")
