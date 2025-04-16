@@ -20,14 +20,14 @@ from data_loading.scale_bar_config import (
     SCALE_BAR_MARGIN,
     SCALE_BAR_BACKGROUND_HEIGHT,
     FONT_FAMILY,
-    FONT_SIZE
+    FONT_SIZE,
 )
 
 # Set global font
 rcParams["font.family"] = FONT_FAMILY
 
-def convert_to_displayable(image: np.ndarray) -> np.ndarray:
 
+def convert_to_displayable(image: np.ndarray) -> np.ndarray:
     """
     Converts an image to displayable format (uint8, 3-channel BGR).
 
@@ -47,8 +47,8 @@ def convert_to_displayable(image: np.ndarray) -> np.ndarray:
 
     return image
 
-def display_image(image: np.ndarray, title="Image"):
 
+def display_image(image: np.ndarray, title="Image"):
     """
     Displays the image using matplotlib with a scale bar overlay.
 
@@ -81,23 +81,38 @@ def display_image(image: np.ndarray, title="Image"):
     background_width = SCALE_BAR_PIXELS + 20
     background_height = SCALE_BAR_BACKGROUND_HEIGHT
 
-    rect = Rectangle((background_x, background_y), background_width, background_height,
-                     color="white", zorder=2)
+    rect = Rectangle(
+        (background_x, background_y),
+        background_width,
+        background_height,
+        color="white",
+        zorder=2,
+    )
     ax.add_patch(rect)
 
     # === Draw thick black scale bar ===
-    ax.plot([x_start, x_start + SCALE_BAR_PIXELS],
-            [y_start, y_start],
-            color="black", linewidth=SCALE_BAR_HEIGHT, zorder=3)
+    ax.plot(
+        [x_start, x_start + SCALE_BAR_PIXELS],
+        [y_start, y_start],
+        color="black",
+        linewidth=SCALE_BAR_HEIGHT,
+        zorder=3,
+    )
 
     # === Draw text centered above bar ===
-    ax.text(x_start + SCALE_BAR_PIXELS / 2,
-            y_start - SCALE_BAR_BACKGROUND_HEIGHT / 2 + 5,
-            SCALE_BAR_TEXT,
-            color="black", fontsize=FONT_SIZE,
-            ha="center", va="center", zorder=4,
-            bbox=dict(facecolor='white', edgecolor='none', boxstyle='round,pad=0.2'))
+    ax.text(
+        x_start + SCALE_BAR_PIXELS / 2,
+        y_start - SCALE_BAR_BACKGROUND_HEIGHT / 2 + 5,
+        SCALE_BAR_TEXT,
+        color="black",
+        fontsize=FONT_SIZE,
+        ha="center",
+        va="center",
+        zorder=4,
+        bbox=dict(facecolor="white", edgecolor="none", boxstyle="round,pad=0.2"),
+    )
 
     import matplotlib
+
     if matplotlib.get_backend() != "Agg":
         plt.show()

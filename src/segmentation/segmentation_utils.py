@@ -9,11 +9,14 @@
 import cv2
 import numpy as np
 
-def compute_markers(foreground_mask: np.ndarray,
-                    morph_kernel_size=(3, 3),
-                    dilation_iter=2,
-                    dist_transform_factor=0.3,
-                    min_foreground_area=50) -> np.ndarray:
+
+def compute_markers(
+    foreground_mask: np.ndarray,
+    morph_kernel_size=(3, 3),
+    dilation_iter=2,
+    dist_transform_factor=0.3,
+    min_foreground_area=50,
+) -> np.ndarray:
     """
     Computes marker image for watershed segmentation based on cleaned foreground mask.
 
@@ -37,9 +40,9 @@ def compute_markers(foreground_mask: np.ndarray,
 
     # Distance transform for sure foreground
     dist_transform = cv2.distanceTransform(opening, cv2.DIST_L2, 5)
-    _, sure_fg = cv2.threshold(dist_transform,
-                               dist_transform_factor * dist_transform.max(),
-                               255, 0)
+    _, sure_fg = cv2.threshold(
+        dist_transform, dist_transform_factor * dist_transform.max(), 255, 0
+    )
     sure_fg = np.uint8(sure_fg)
 
     # Unknown = background - foreground

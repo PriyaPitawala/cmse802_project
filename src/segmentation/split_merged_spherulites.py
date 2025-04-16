@@ -13,11 +13,13 @@ from skimage.feature import peak_local_max
 from scipy import ndimage as ndi
 
 
-def split_merged_spherulites(gray_image: np.ndarray,
-                              edge_labels: np.ndarray,
-                              area_threshold: int = 5000,
-                              grad_blur_ksize: int = 3,
-                              dist_thresh_factor: float = 0.5) -> np.ndarray:
+def split_merged_spherulites(
+    gray_image: np.ndarray,
+    edge_labels: np.ndarray,
+    area_threshold: int = 5000,
+    grad_blur_ksize: int = 3,
+    dist_thresh_factor: float = 0.5,
+) -> np.ndarray:
     """
     Splits large spherulite regions using gradient-based watershed segmentation.
 
@@ -58,7 +60,9 @@ def split_merged_spherulites(gray_image: np.ndarray,
         dist = cv2.distanceTransform(mask, cv2.DIST_L2, 5)
 
         # Use peak_local_max for marker seeds
-        coordinates = peak_local_max(dist, labels=mask, min_distance=10, exclude_border=False)
+        coordinates = peak_local_max(
+            dist, labels=mask, min_distance=10, exclude_border=False
+        )
         local_maxi = np.zeros_like(dist, dtype=bool)
         local_maxi[tuple(coordinates.T)] = True
 

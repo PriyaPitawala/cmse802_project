@@ -1,7 +1,7 @@
 # Module for edge-based segmentation.
 
-# This module contains a function for processing a grayscale image and generating a binary image of the foreground,and 
-# detecting the boundaries between the white regions surrounded by the black environment. 
+# This module contains a function for processing a grayscale image and generating a binary image of the foreground,and
+# detecting the boundaries between the white regions surrounded by the black environment.
 # This is an edge-based segmentation method.
 
 # Author: Priyangika Pitawala
@@ -10,8 +10,8 @@
 import cv2
 import numpy as np
 
-def segment_by_edges(gray_image: np.ndarray,
-                     foreground_mask: np.ndarray) -> np.ndarray:
+
+def segment_by_edges(gray_image: np.ndarray, foreground_mask: np.ndarray) -> np.ndarray:
     """
     Segments spherulites by labeling connected white regions in the foreground mask.
     Avoids edge detection entirely and treats each white region as a separate spherulite.

@@ -1,7 +1,7 @@
 # Module for image preprocessing.
 
 # This module contains functions for preprocessing an image to prepare it for segmentation.
-# It converts the image to grayscale, applies filtering and thresholding, 
+# It converts the image to grayscale, applies filtering and thresholding,
 # with optional enhancement of contrast and boundary definition. Furthermore, it computes markers
 # to enable watershed algorithm in latter stages.
 
@@ -11,10 +11,22 @@
 import cv2
 import numpy as np
 
-def preprocess_image(image: np.ndarray, blur_kernel=(5,5), threshold_method=cv2.THRESH_BINARY, 
-                     threshold_value=127, adaptive=False, block_size=11, C=2,
-                     use_edge_detection=False, edge_low_threshold=50, edge_high_threshold=150,
-                     use_gradient_thresholding=False, enhance_contrast=False, detect_grain_boundaries=False):
+
+def preprocess_image(
+    image: np.ndarray,
+    blur_kernel=(5, 5),
+    threshold_method=cv2.THRESH_BINARY,
+    threshold_value=127,
+    adaptive=False,
+    block_size=11,
+    C=2,
+    use_edge_detection=False,
+    edge_low_threshold=50,
+    edge_high_threshold=150,
+    use_gradient_thresholding=False,
+    enhance_contrast=False,
+    detect_grain_boundaries=False,
+):
     """
     Preprocesses an image for segmentation, with optional edge detection, gradient thresholding,
     contrast enhancement (CLAHE), and grain boundary detection.
@@ -41,23 +53,31 @@ def preprocess_image(image: np.ndarray, blur_kernel=(5,5), threshold_method=cv2.
 
     # Apply CLAHE for local contrast enhancement
     if enhance_contrast:
-        clahe = cv2.createCLAHE(clipLimit=1.5, tileGridSize=(8,8))
+        clahe = cv2.createCLAHE(clipLimit=1.5, tileGridSize=(8, 8))
         gray_image = clahe.apply(gray_image)
 
     # Apply Gaussian Blur
     image_blur = cv2.GaussianBlur(gray_image, blur_kernel, 0)
-    
+
     # Apply thresholding
     if adaptive:
-        processed = cv2.adaptiveThreshold(image_blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
-                                          threshold_method, block_size, C)
+        processed = cv2.adaptiveThreshold(
+            image_blur,
+            255,
+            cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+            threshold_method,
+            block_size,
+            C,
+        )
     else:
         _, processed = cv2.threshold(image_blur, threshold_value, 255, threshold_method)
 
     # Apply edge detection if enabled
     if use_edge_detection:
         edges = cv2.Canny(processed, edge_low_threshold, edge_high_threshold)
-        processed = cv2.bitwise_or(processed, edges)  # Merge edges into thresholded image
+        processed = cv2.bitwise_or(
+            processed, edges
+        )  # Merge edges into thresholded image
 
     # Apply gradient-based thresholding if enabled
     if use_gradient_thresholding:
@@ -68,14 +88,22 @@ def preprocess_image(image: np.ndarray, blur_kernel=(5,5), threshold_method=cv2.
     # Apply grain boundary detection
     if detect_grain_boundaries:
         # Compute the morphological gradient (dilation - erosion) to highlight grain boundaries
-        kernel = np.ones((3,3), np.uint8)
+        kernel = np.ones((3, 3), np.uint8)
         grain_boundaries = cv2.morphologyEx(gray_image, cv2.MORPH_GRADIENT, kernel)
-        processed = cv2.bitwise_or(processed, grain_boundaries)  # Merge grain boundaries with existing features
+        processed = cv2.bitwise_or(
+            processed, grain_boundaries
+        )  # Merge grain boundaries with existing features
 
     return processed
 
-def compute_markers(binary_image: np.ndarray, morph_kernel_size=(3,3), dilation_iter=3, 
-                    dist_transform_factor=0.5, min_foreground_area=100):
+
+def compute_markers(
+    binary_image: np.ndarray,
+    morph_kernel_size=(3, 3),
+    dilation_iter=3,
+    dist_transform_factor=0.5,
+    min_foreground_area=100,
+):
     """
     Computes markers for watershed segmentation.
 
@@ -99,7 +127,9 @@ def compute_markers(binary_image: np.ndarray, morph_kernel_size=(3,3), dilation_
 
     # Distance transform and thresholding for sure foreground
     dist_transform = cv2.distanceTransform(opening, cv2.DIST_L2, 5)
-    _, sure_fg = cv2.threshold(dist_transform, dist_transform_factor * dist_transform.max(), 255, 0)
+    _, sure_fg = cv2.threshold(
+        dist_transform, dist_transform_factor * dist_transform.max(), 255, 0
+    )
 
     # Convert sure foreground to uint8
     sure_fg = np.uint8(sure_fg)

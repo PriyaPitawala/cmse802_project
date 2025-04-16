@@ -1,6 +1,6 @@
 # Module for visual verification of segmentation.
 
-# This module contains functions for returning an overlay of the segmented boundaries over a 
+# This module contains functions for returning an overlay of the segmented boundaries over a
 # preprocessed image to validate and tune the performance of the segmentation algorithms.
 
 # Author: Priyangika Pitawala
@@ -9,9 +9,10 @@
 import cv2
 import numpy as np
 
-def overlay_boundaries_on_mask(foreground_mask: np.ndarray,
-                                markers: np.ndarray,
-                                color: tuple = (0, 255, 0)) -> np.ndarray:
+
+def overlay_boundaries_on_mask(
+    foreground_mask: np.ndarray, markers: np.ndarray, color: tuple = (0, 255, 0)
+) -> np.ndarray:
     """
     Overlays watershed boundaries (markers == -1) on the cleaned foreground mask.
 
@@ -32,11 +33,14 @@ def overlay_boundaries_on_mask(foreground_mask: np.ndarray,
 
     return fg_rgb
 
-def overlay_combined_boundaries(foreground_mask: np.ndarray,
-                                watershed_markers: np.ndarray,
-                                edge_labels: np.ndarray,
-                                color_watershed=(0, 255, 0),
-                                color_edges=(255, 0, 0)) -> np.ndarray:
+
+def overlay_combined_boundaries(
+    foreground_mask: np.ndarray,
+    watershed_markers: np.ndarray,
+    edge_labels: np.ndarray,
+    color_watershed=(0, 255, 0),
+    color_edges=(255, 0, 0),
+) -> np.ndarray:
     """
     Overlays watershed and edge-based boundaries on the foreground mask.
 
@@ -61,9 +65,10 @@ def overlay_combined_boundaries(foreground_mask: np.ndarray,
 
     return fg_rgb
 
-def overlay_labels_as_boundaries(base_image: np.ndarray,
-                                 label_mask: np.ndarray,
-                                 color: tuple = (0, 0, 255)) -> np.ndarray:
+
+def overlay_labels_as_boundaries(
+    base_image: np.ndarray, label_mask: np.ndarray, color: tuple = (0, 0, 255)
+) -> np.ndarray:
     """
     Overlays label boundaries on a base image.
 

@@ -15,11 +15,10 @@ SCALE_BAR_PIXELS = 137  # Calibrated from real image
 SCALE_BAR_TEXT = f"{SCALE_BAR_MICRONS} µm"
 
 # Visual style
-SCALE_BAR_HEIGHT = 4                # Thickness of black bar in pixels
-SCALE_BAR_MARGIN = 20              # Distance from bottom and right edges
-SCALE_BAR_BACKGROUND_HEIGHT = 60   # Height of the white background box
+SCALE_BAR_HEIGHT = 4  # Thickness of black bar in pixels
+SCALE_BAR_MARGIN = 20  # Distance from bottom and right edges
+SCALE_BAR_BACKGROUND_HEIGHT = 60  # Height of the white background box
 
 # Font style
 FONT_FAMILY = "Arial"
 FONT_SIZE = 12
-

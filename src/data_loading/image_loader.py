@@ -8,6 +8,7 @@
 import cv2
 import numpy as np
 
+
 def load_image(image_path: str) -> np.ndarray:
     """
     Loads an image from the given path and returns it as a NumPy array.

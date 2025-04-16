@@ -33,7 +33,9 @@ def clean_watershed_labels(markers: np.ndarray) -> np.ndarray:
     return cleaned
 
 
-def extract_region_features(segmented_labels: np.ndarray, raw_image: np.ndarray) -> pd.DataFrame:
+def extract_region_features(
+    segmented_labels: np.ndarray, raw_image: np.ndarray
+) -> pd.DataFrame:
     """
     Extracts morphological and intensity-based features from cleaned watershed labels.
 
@@ -50,24 +52,26 @@ def extract_region_features(segmented_labels: np.ndarray, raw_image: np.ndarray)
         segmented_labels,
         intensity_image=gray,
         properties=[
-            'label',
-            'area',
-            'equivalent_diameter',
-            'perimeter',
-            'eccentricity',
-            'solidity',
-            'orientation',
-            'centroid',
-            'bbox',
-            'mean_intensity',
-            'max_intensity',
-            'min_intensity',
-        ]
+            "label",
+            "area",
+            "equivalent_diameter",
+            "perimeter",
+            "eccentricity",
+            "solidity",
+            "orientation",
+            "centroid",
+            "bbox",
+            "mean_intensity",
+            "max_intensity",
+            "min_intensity",
+        ],
     )
     return pd.DataFrame(props)
 
 
-def overlay_labels_on_image(segmented_labels: np.ndarray, raw_image: np.ndarray) -> np.ndarray:
+def overlay_labels_on_image(
+    segmented_labels: np.ndarray, raw_image: np.ndarray
+) -> np.ndarray:
     """
     Overlays bounding boxes and label text on grayscale-converted image for display.
 
@@ -84,7 +88,9 @@ def overlay_labels_on_image(segmented_labels: np.ndarray, raw_image: np.ndarray)
 
     for region in props:
         minr, minc, maxr, maxc = region.bbox
-        cv2.rectangle(overlay, (minc, minr), (maxc, maxr), color=(0, 255, 0), thickness=1)
+        cv2.rectangle(
+            overlay, (minc, minr), (maxc, maxr), color=(0, 255, 0), thickness=1
+        )
 
         centroid_r, centroid_c = region.centroid
         cv2.putText(
@@ -95,7 +101,7 @@ def overlay_labels_on_image(segmented_labels: np.ndarray, raw_image: np.ndarray)
             fontScale=0.4,
             color=(255, 0, 0),
             thickness=1,
-            lineType=cv2.LINE_AA
+            lineType=cv2.LINE_AA,
         )
 
     return overlay

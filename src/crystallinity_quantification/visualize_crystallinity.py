@@ -5,11 +5,9 @@ import os
 # Define scale
 MICRONS_PER_PIXEL = 60 / 137  # ≈ 0.438
 
+
 def plot_crystallite_size_distribution(
-    feature_df: pd.DataFrame,
-    image_id: str,
-    metadata: dict,
-    bin_width_um: float = 2.0
+    feature_df: pd.DataFrame, image_id: str, metadata: dict, bin_width_um: float = 2.0
 ):
     """
     Plots a histogram of crystallite sizes in microns, including sample metadata in the title.
@@ -32,7 +30,7 @@ def plot_crystallite_size_distribution(
 
     # Plot
     plt.figure(figsize=(8, 6))
-    plt.hist(diameters_um, bins=bins, color='steelblue', edgecolor='black', alpha=0.85)
+    plt.hist(diameters_um, bins=bins, color="steelblue", edgecolor="black", alpha=0.85)
 
     title = f"Crystallite Size Distribution – {image_id}"
     subtitle = (
@@ -44,6 +42,6 @@ def plot_crystallite_size_distribution(
     plt.title(f"{title}\n{subtitle}", fontsize=12)
     plt.xlabel("Equivalent Diameter (µm)")
     plt.ylabel("Count")
-    plt.grid(True, linestyle='--', alpha=0.6)
+    plt.grid(True, linestyle="--", alpha=0.6)
     plt.tight_layout()
     plt.show()

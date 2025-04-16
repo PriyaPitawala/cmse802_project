@@ -5,8 +5,13 @@ import numpy as np
 
 # Constants
 MICRONS_PER_PIXEL = 60 / 137
-SUMMARY_CSV = os.path.abspath(os.path.join(os.getcwd(), "../../results/tables/crystallinity_summary_all_images.csv"))
+SUMMARY_CSV = os.path.abspath(
+    os.path.join(
+        os.getcwd(), "../../results/tables/crystallinity_summary_all_images.csv"
+    )
+)
 FEATURES_DIR = os.path.abspath(os.path.join(os.getcwd(), "../../results/features/"))
+
 
 def load_matching_features(thickness, light_intensity, photoabsorber):
     """
@@ -16,9 +21,9 @@ def load_matching_features(thickness, light_intensity, photoabsorber):
 
     # Filter by input criteria
     group = summary[
-        (summary["thickness"] == thickness) &
-        (summary["light_intensity"] == light_intensity) &
-        (summary["photoabsorber"] == photoabsorber)
+        (summary["thickness"] == thickness)
+        & (summary["light_intensity"] == light_intensity)
+        & (summary["photoabsorber"] == photoabsorber)
     ]
 
     if group.empty:
@@ -32,7 +37,9 @@ def load_matching_features(thickness, light_intensity, photoabsorber):
         if os.path.exists(features_path):
             features_df = pd.read_csv(features_path)
             if "equivalent_diameter" in features_df.columns:
-                diameters_um = features_df["equivalent_diameter"].dropna() * MICRONS_PER_PIXEL
+                diameters_um = (
+                    features_df["equivalent_diameter"].dropna() * MICRONS_PER_PIXEL
+                )
                 all_diameters_um.append(diameters_um)
             else:
                 print(f"⚠ No diameter data in {image_id}")
@@ -41,7 +48,10 @@ def load_matching_features(thickness, light_intensity, photoabsorber):
 
     return all_diameters_um
 
-def plot_average_distribution(all_diameters_um, title="Average Crystallite Size Distribution", bin_width=2.0):
+
+def plot_average_distribution(
+    all_diameters_um, title="Average Crystallite Size Distribution", bin_width=2.0
+):
     """
     Plot the average crystallite size distribution by dividing bin counts by the number of samples.
 
@@ -72,18 +82,28 @@ def plot_average_distribution(all_diameters_um, title="Average Crystallite Size 
     # Plot
     plt.figure(figsize=(8, 6))
     bin_centers = (bins[:-1] + bins[1:]) / 2
-    plt.bar(bin_centers, avg_counts, width=bin_width*0.9, color='darkorange', edgecolor='black', alpha=0.85)
+    plt.bar(
+        bin_centers,
+        avg_counts,
+        width=bin_width * 0.9,
+        color="darkorange",
+        edgecolor="black",
+        alpha=0.85,
+    )
 
     plt.title(title)
     plt.xlabel("Equivalent Diameter (µm)")
     plt.ylabel("Average Count per Sample")
-    plt.grid(True, linestyle='--', alpha=0.6)
-    plt.xlim(0,60)
-    plt.ylim(0,350)
+    plt.grid(True, linestyle="--", alpha=0.6)
+    plt.xlim(0, 60)
+    plt.ylim(0, 350)
     plt.tight_layout()
     plt.show()
 
-def plot_weighted_group_distribution(thickness, light_intensity, photoabsorber, bin_width=2.0):
+
+def plot_weighted_group_distribution(
+    thickness, light_intensity, photoabsorber, bin_width=2.0
+):
     """
     Plots the weighted average crystallite size distribution for a group of samples
     with the same thickness, light intensity, and photoabsorber concentration.
@@ -99,9 +119,9 @@ def plot_weighted_group_distribution(thickness, light_intensity, photoabsorber, 
 
     # Filter by sample group
     group = summary[
-        (summary["thickness"] == thickness) &
-        (summary["light_intensity"] == light_intensity) &
-        (summary["photoabsorber"] == photoabsorber)
+        (summary["thickness"] == thickness)
+        & (summary["light_intensity"] == light_intensity)
+        & (summary["photoabsorber"] == photoabsorber)
     ]
 
     if group.empty:
@@ -119,7 +139,9 @@ def plot_weighted_group_distribution(thickness, light_intensity, photoabsorber, 
         if os.path.exists(features_path):
             features_df = pd.read_csv(features_path)
             if "equivalent_diameter" in features_df.columns:
-                diameters = features_df["equivalent_diameter"].dropna() * MICRONS_PER_PIXEL
+                diameters = (
+                    features_df["equivalent_diameter"].dropna() * MICRONS_PER_PIXEL
+                )
                 all_diameters.append(diameters)
                 weights.append(weight)
             else:
@@ -153,12 +175,21 @@ def plot_weighted_group_distribution(thickness, light_intensity, photoabsorber, 
     # Plot
     bin_centers = (bins[:-1] + bins[1:]) / 2
     plt.figure(figsize=(8, 6))
-    plt.bar(bin_centers, weighted_avg_counts, width=bin_width*0.9, color='royalblue', edgecolor='black', alpha=0.85)
-    plt.title(f"Weighted Avg – {light_intensity} mW/cm², {thickness} µm, {photoabsorber} wt%")
+    plt.bar(
+        bin_centers,
+        weighted_avg_counts,
+        width=bin_width * 0.9,
+        color="royalblue",
+        edgecolor="black",
+        alpha=0.85,
+    )
+    plt.title(
+        f"Weighted Avg – {light_intensity} mW/cm², {thickness} µm, {photoabsorber} wt%"
+    )
     plt.xlabel("Equivalent Diameter (µm)")
     plt.ylabel("Weighted Average Count")
-    plt.xlim(0,60)
-    plt.ylim(0,500)
-    plt.grid(True, linestyle='--', alpha=0.6)
+    plt.xlim(0, 60)
+    plt.ylim(0, 500)
+    plt.grid(True, linestyle="--", alpha=0.6)
     plt.tight_layout()
     plt.show()

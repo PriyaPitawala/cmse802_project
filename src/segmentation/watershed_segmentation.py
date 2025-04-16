@@ -2,13 +2,14 @@
 
 # This module contains  a function for segmenting an image using watershed algorith.
 # The function intakes a raw image and markers for segmentation, and outputs a grayscale
-# version of the raw image overlaid with the segmented boundaries. 
+# version of the raw image overlaid with the segmented boundaries.
 
 # Author: Priyangika Pitawala
 # Date: March 2025
 
 import cv2
 import numpy as np
+
 
 def apply_watershed(image: np.ndarray, markers: np.ndarray) -> np.ndarray:
     """
@@ -29,16 +30,22 @@ def apply_watershed(image: np.ndarray, markers: np.ndarray) -> np.ndarray:
 
     # Convert image to grayscale for display
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    gray_image = cv2.cvtColor(gray_image, cv2.COLOR_GRAY2BGR)  # Convert back to 3-channel for overlay
+    gray_image = cv2.cvtColor(
+        gray_image, cv2.COLOR_GRAY2BGR
+    )  # Convert back to 3-channel for overlay
 
     # Ensure markers are in int32 format as required by OpenCV
     markers = markers.astype(np.int32)
 
     # Apply watershed algorithm
     cv2.watershed(image, markers)
-    
+
     # Create a thin boundary mask
     boundary_mask = markers == -1  # Boundary pixels
-    gray_image[boundary_mask] = [0, 255, 0]  # Mark boundaries in green (BGR format: Blue=0, Green=255, Red=0)
-    
+    gray_image[boundary_mask] = [
+        0,
+        255,
+        0,
+    ]  # Mark boundaries in green (BGR format: Blue=0, Green=255, Red=0)
+
     return gray_image, markers

@@ -10,14 +10,17 @@
 import cv2
 import numpy as np
 
-def preprocess_image(image: np.ndarray,
-                     blur_kernel=(5, 5),
-                     threshold_method=cv2.THRESH_BINARY_INV,
-                     threshold_value=120,
-                     adaptive=True,
-                     block_size=17,
-                     C=3,
-                     enhance_contrast=True) -> np.ndarray:
+
+def preprocess_image(
+    image: np.ndarray,
+    blur_kernel=(5, 5),
+    threshold_method=cv2.THRESH_BINARY_INV,
+    threshold_value=120,
+    adaptive=True,
+    block_size=17,
+    C=3,
+    enhance_contrast=True,
+) -> np.ndarray:
     """
     Preprocess image to isolate Maltese crosses via thresholding and contrast enhancement.
 
@@ -45,10 +48,14 @@ def preprocess_image(image: np.ndarray,
 
     # Apply thresholding
     if adaptive:
-        binary_mask = cv2.adaptiveThreshold(blurred, 255,
-                                            cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-                                            threshold_method,
-                                            block_size, C)
+        binary_mask = cv2.adaptiveThreshold(
+            blurred,
+            255,
+            cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+            threshold_method,
+            block_size,
+            C,
+        )
     else:
         _, binary_mask = cv2.threshold(blurred, threshold_value, 255, threshold_method)
 
