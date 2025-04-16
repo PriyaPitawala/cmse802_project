@@ -20,14 +20,21 @@ Date: April 2025
 import os
 import pandas as pd
 
-from crystallinity_quantification.crystallinity_analysis import compute_crystallinity_metrics
-from crystallinity_quantification.visualize_crystallinity import plot_crystallite_size_distribution
+from crystallinity_quantification.crystallinity_analysis import (
+    compute_crystallinity_metrics,
+)
+from crystallinity_quantification.visualize_crystallinity import (
+    plot_crystallite_size_distribution,
+)
 
 
 def get_project_root() -> str:
     """
-    Returns the absolute path to the root of the project by going two levels up from the current
-    working directory. Assumes you're running from `notebooks/exploratory/` or similar inside project.
+    Returns the absolute path to the root of the project by going two levels up
+    from the current working directory.
+
+    Assumes you're running from `notebooks/exploratory/` or a similar folder inside
+    the project directory.
     """
     return os.path.abspath(os.path.join(os.getcwd(), "../../"))
 
@@ -48,22 +55,25 @@ def process_and_append_sample(
     ----------
     image_id : str
         Unique identifier for the sample/image.
-    
+
     features_df : pd.DataFrame
         Extracted region features (e.g., area, equivalent diameter).
-    
+
     image_shape : tuple
         Shape of the original image (height, width).
-    
+
     metadata : dict
-        Dictionary of experimental parameters (e.g., thickness, light intensity).
-    
+        Dictionary of experimental parameters. Expected keys:
+        - 'light_intensity' (in mW/cm²)
+        - 'thickness' (in µm)
+        - 'photoabsorber' (in wt%)
+
     quality_weight : float, optional
         Segmentation quality score (default is 1.0).
-    
+
     notes : str, optional
         Optional annotation for manual notes.
-    
+
     output_csv_name : str, optional
         Filename for the global summary table.
 
@@ -76,14 +86,16 @@ def process_and_append_sample(
     project_root = get_project_root()
 
     # Plot histogram for visual check
-    plot_crystallite_size_distribution(features_df, image_id=image_id, metadata=metadata)
+    plot_crystallite_size_distribution(
+        features_df, image_id=image_id, metadata=metadata
+    )
 
     # Compute summary row
     summary_df = compute_crystallinity_metrics(
         feature_df=features_df,
         image_shape=image_shape,
         image_id=image_id,
-        metadata=metadata
+        metadata=metadata,
     )
 
     summary_df["segmentation_quality"] = quality_weight
