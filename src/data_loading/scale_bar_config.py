@@ -1,13 +1,43 @@
-# Module for configuration of the scale bar.
+"""
+scale_bar_config.py
 
-# This module contains the configuration for recreating and overlaying a scale bar over polarized optical microscope (POM) images.
-# The dimensions were extracted from an actual scale bar that matches the spatial calibration of the lens used for the project.
+Contains constants used to overlay a scale bar and its label on images
+for visual calibration.
 
-# Author: Priyangika Pitawala
-# Date: March 2025
+The scale bar is calibrated based on a known physical distance in microns
+and its corresponding length in image pixels. This allows consistent and
+accurate scale rendering across all processed images.
 
-# Physical meaning
-# Calibration constants for scale bar overlay
+Constants:
+----------
+SCALE_BAR_MICRONS : int
+    Physical length of the scale bar in microns (e.g., 60 µm).
+
+SCALE_BAR_PIXELS : int
+    Length of the scale bar in pixels (measured from a calibration image).
+
+SCALE_BAR_TEXT : str
+    Display label for the scale bar (e.g., "60 µm").
+
+SCALE_BAR_HEIGHT : int
+    Thickness of the black bar in pixels.
+
+SCALE_BAR_MARGIN : int
+    Distance from the image's bottom-right corner to place the scale bar.
+
+SCALE_BAR_BACKGROUND_HEIGHT : int
+    Height of the white rectangle behind the scale bar and label.
+
+FONT_FAMILY : str
+    Font family for rendering the text label.
+
+FONT_SIZE : int
+    Font size (in points) for the label.
+
+Author: Priyangika Pitawala
+Date: April 2025
+"""
+
 
 # Physical meaning
 SCALE_BAR_MICRONS = 60
