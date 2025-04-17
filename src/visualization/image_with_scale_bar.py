@@ -143,3 +143,5 @@ def display_image(image: np.ndarray, title="Image"):
     import matplotlib
     if matplotlib.get_backend() != "Agg":
         plt.show()
+
+    return fig
