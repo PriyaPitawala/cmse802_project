@@ -1,11 +1,48 @@
-# Module for image preprocessing specifically to segment Maltese crosses.
+"""
+preprocess_malcross.py
 
-# This module contains functions for preprocessing an image to prepare it for segmentation of Maltese crosses.
-# It converts the image to grayscale, enhances contrast (if enabled), applies a Gaussian blur to smooth over noise, and
-# applies adaptive thresholding (if enabled).
+This module provides image preprocessing utilities for isolating Maltese crosses
+in polarized optical microscopy (POM) images of semicrystalline photopolymers.
 
-# Author: Priyangika Pitawala
-# Date: March 2025
+Main Functionality:
+-------------------
+- Converts input BGR image to grayscale
+- Applies CLAHE contrast enhancement (optional)
+- Uses Gaussian blur to suppress noise
+- Applies either adaptive or global thresholding to generate a binary mask
+  that highlights bright cross-like nucleation centers (Maltese crosses)
+
+Typical Use:
+------------
+Used in workflows where nucleation centers need to be extracted separately
+from spherulitic regions for further segmentation, quantification, or
+crystallinity analysis.
+
+Function:
+---------
+- preprocess_image:
+    Accepts a raw image and outputs a binary mask where Maltese cross regions
+    are isolated based on intensity and local contrast features.
+
+Dependencies:
+-------------
+- OpenCV (cv2)
+- NumPy (np)
+
+Example:
+--------
+```python
+from preprocessing import preprocess_malcross
+
+binary_mask = preprocess_malcross.preprocess_image(
+    image=raw_image,
+    adaptive=True,
+    enhance_contrast=True
+)
+
+#Author: Priyangika Pitawala
+#Date: April 2025
+"""
 
 import cv2
 import numpy as np
@@ -22,7 +59,9 @@ def preprocess_image(
     enhance_contrast=True,
 ) -> np.ndarray:
     """
-    Preprocess image to isolate Maltese crosses via thresholding and contrast enhancement.
+    Preprocess image to isolate Maltese crosses via thresholding and
+    contrast enhancement.
+
 
     Parameters:
     - image (np.ndarray): Input BGR image.
