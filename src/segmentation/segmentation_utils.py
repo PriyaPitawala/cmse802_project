@@ -1,10 +1,54 @@
-# Module for additional functions for segmentation.
+"""
+segmentation_utils.py
 
-# This module contains a function for computing markers necessary to segment an image using watershed algorithm.
-# It performs morphological operations, distance transformation, and filtering of noise.
+Provides a utility function to compute marker images for watershed
+segmentation from a binary foreground mask. This module is essential
+for separating merged or touching regions such as spherulites
+in polarized optical microscopy (POM) images.
 
-# Author: Priyangika Pitawala
-# Date: March 2025
+Main Function:
+--------------
+compute_markers(foreground_mask, ...):
+    - Cleans the input mask with morphological operations.
+    - Computes sure foreground and sure background regions.
+    - Identifies unknown regions (boundary zones between grains).
+    - Labels connected components and removes small regions.
+    - Prepares the final marker image suitable for use with cv2.watershed.
+
+Parameters:
+-----------
+- foreground_mask (np.ndarray): Binary image (0 background, 255 spherulites).
+- morph_kernel_size (tuple): Size of structuring element
+for morphological operations (default: (3, 3)).
+- dilation_iter (int): Number of dilation iterations
+to define sure background (default: 2).
+- dist_transform_factor (float): Fraction of max distance transform used
+for foreground thresholding (default: 0.3).
+- min_foreground_area (int): Minimum area in pixels for a marker to be retained
+(default: 50).
+
+Returns:
+--------
+- np.ndarray: Integer marker image (int32) where:
+    - Label 0 marks unknown region (to be filled by watershed).
+    - Label 1 is reserved for background.
+    - Labels 2 and above correspond to individual spherulites or segments.
+
+Dependencies:
+-------------
+- OpenCV (cv2)
+- NumPy (np)
+
+Example:
+--------
+```python
+from segmentation.segmentation_utils import compute_markers
+markers = compute_markers(foreground_mask)
+```
+
+#Author: Priyangika Pitawala
+#Date: April 2025
+"""
 
 import cv2
 import numpy as np
@@ -24,7 +68,8 @@ def compute_markers(
     - foreground_mask (np.ndarray): Binary mask of foreground (spherulites), 0 or 255.
     - morph_kernel_size (tuple): Kernel size for morphological operations.
     - dilation_iter (int): Dilation iterations for sure background.
-    - dist_transform_factor (float): Distance transform threshold factor for sure foreground.
+    - dist_transform_factor (float): Distance transform threshold factor
+    for sure foreground.
     - min_foreground_area (int): Minimum area to retain a marker.
 
     Returns:
