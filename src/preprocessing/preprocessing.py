@@ -1,12 +1,64 @@
-# Module for image preprocessing.
+"""
+preprocessing.py
 
-# This module contains functions for preprocessing an image to prepare it for segmentation.
-# It converts the image to grayscale, applies filtering and thresholding,
-# with optional enhancement of contrast and boundary definition. Furthermore, it computes markers
-# to enable watershed algorithm in latter stages.
+Another legacy image preprocessing module for segmenting spherulitic features in
+polarized optical microscopy (POM) images of semicrystalline photopolymers.
 
-# Author: Priyangika Pitawala
-# Date: March 2025
+This module implements advanced techniques for noise suppression, grain boundary
+detection, foreground refinement, and robust watershed marker generation.
+
+Key Features:
+-------------
+- CLAHE contrast enhancement
+- Edge-based segmentation via morphological gradients
+- Intensity- and texture-based region filling
+- Foreground marker generation using peak-local-max and distance transforms
+- Optional suppression of known background and dark-edge artifacts
+
+Functions:
+----------
+1. preprocess_image:
+   - Converts input BGR image to grayscale
+   - Optionally enhances contrast (CLAHE)
+   - Computes morphological gradients to identify grain boundaries
+   - Suppresses dark backgrounds and fills high-intensity, high-variation regions
+   - Accepts known background masks to exclude from further segmentation
+   - Returns either the final mask or a debug dictionary of intermediate steps
+
+2. compute_markers:
+   - Applies morphological opening and distance transforms
+   - Suppresses edge-based noise before applying distance transform
+   - Uses peak-local-maximum to seed watershed markers
+   - Returns a labeled marker image
+
+3. visualize_markers:
+   - Converts watershed markers to a color-coded RGB overlay for inspection
+
+Usage Example:
+--------------
+```python
+from preprocessing import preprocess_image, compute_markers, visualize_markers
+
+# Step 1: Preprocess the image
+foreground_mask = preprocess_image(raw_image)
+
+# Step 2: Generate markers for watershed segmentation
+markers = compute_markers(foreground_mask)
+
+# Step 3: Visualize the marker regions
+overlay = visualize_markers(markers)
+```
+
+Dependencies:
+-------------
+- OpenCV (cv2)
+- NumPy
+- SciPy (ndimage, gaussian_filter)
+- scikit-image (peak_local_max)
+
+#Author: Priyangika Pitawala
+#Date: April 2025
+"""
 
 import cv2
 import numpy as np

@@ -1,12 +1,69 @@
-# Module for image preprocessing.
+"""
+preprocessing_old.py
 
-# This module contains functions for preprocessing an image to prepare it for segmentation.
-# It converts the image to grayscale, applies filtering and thresholding,
-# with optional enhancement of contrast and boundary definition. Furthermore, it computes markers
-# to enable watershed algorithm in latter stages.
+Legacy preprocessing module for preparing polarized optical microscopy (POM) images
+for segmentation of semicrystalline polymer structures such as spherulites and
+nucleation centers (e.g., Maltese crosses).
 
-# Author: Priyangika Pitawala
-# Date: March 2025
+This module provides flexible image preprocessing and watershed marker generation
+with extensive options for thresholding, contrast enhancement, edge detection, and
+grain boundary identification.
+
+Main Functionalities:
+---------------------
+1. preprocess_image:
+   - Converts an input BGR image to grayscale
+   - Optionally enhances local contrast using CLAHE
+   - Applies Gaussian blur to reduce noise
+   - Supports adaptive and global thresholding methods
+   - Optionally integrates:
+     - Canny edge detection
+     - Gradient-based thresholding using the Laplacian
+     - Morphological gradient for grain boundary detection
+
+2. compute_markers:
+   - Prepares marker seeds for watershed segmentation
+   - Performs morphological filtering and distance transforms
+   - Identifies sure foreground and background regions
+   - Excludes regions below a minimum area threshold
+   - Labels connected components for watershed input
+
+Intended Use:
+-------------
+Primarily used for legacy experiments or comparison studies where
+earlier versions of segmentation pipelines are required for benchmarking
+against improved modules like `mask_generator.py`.
+
+Typical Workflow:
+-----------------
+```python
+from preprocessing import preprocessing_old
+
+# Step 1: Preprocess POM image with optional features
+binary_mask = preprocessing_old.preprocess_image(
+    image=raw_image,
+    enhance_contrast=True,
+    use_edge_detection=True,
+    detect_grain_boundaries=True
+)
+
+# Step 2: Generate markers for watershed segmentation
+markers = preprocessing_old.compute_markers(binary_mask)
+```
+
+Dependencies:
+-------------
+- OpenCV (cv2)
+- NumPy (np)
+
+Returns:
+--------
+- Preprocessed binary masks (np.ndarray)
+- Marker labels for watershed segmentation (np.ndarray)
+
+#Author: Priyangika Pitawala
+#Date: April 2025
+"""
 
 import cv2
 import numpy as np
@@ -27,28 +84,6 @@ def preprocess_image(
     enhance_contrast=False,
     detect_grain_boundaries=False,
 ):
-    """
-    Preprocesses an image for segmentation, with optional edge detection, gradient thresholding,
-    contrast enhancement (CLAHE), and grain boundary detection.
-
-    Parameters:
-    - image (np.ndarray): Input image in BGR format.
-    - blur_kernel (tuple): Kernel size for Gaussian blur.
-    - threshold_method (int): OpenCV thresholding method.
-    - threshold_value (int): Global threshold value (ignored if adaptive=True).
-    - adaptive (bool): If True, use adaptive thresholding.
-    - block_size (int): Size of the neighborhood for adaptive thresholding.
-    - C (int): Constant subtracted from the mean in adaptive thresholding.
-    - use_edge_detection (bool): If True, apply Canny edge detection.
-    - edge_low_threshold (int): Lower threshold for Canny edge detection.
-    - edge_high_threshold (int): Upper threshold for Canny edge detection.
-    - use_gradient_thresholding (bool): If True, apply Laplacian-based gradient thresholding.
-    - enhance_contrast (bool): If True, apply CLAHE to enhance local contrast.
-    - detect_grain_boundaries (bool): If True, apply Structure Tensor-based boundary detection.
-
-    Returns:
-    - np.ndarray: Preprocessed binary image.
-    """
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     # Apply CLAHE for local contrast enhancement
@@ -87,7 +122,8 @@ def preprocess_image(
 
     # Apply grain boundary detection
     if detect_grain_boundaries:
-        # Compute the morphological gradient (dilation - erosion) to highlight grain boundaries
+        # Compute the morphological gradient (dilation - erosion) to highlight
+        # grain boundaries
         kernel = np.ones((3, 3), np.uint8)
         grain_boundaries = cv2.morphologyEx(gray_image, cv2.MORPH_GRADIENT, kernel)
         processed = cv2.bitwise_or(
@@ -104,19 +140,6 @@ def compute_markers(
     dist_transform_factor=0.5,
     min_foreground_area=100,
 ):
-    """
-    Computes markers for watershed segmentation.
-
-    Parameters:
-    - binary_image (np.ndarray): Preprocessed binary image.
-    - morph_kernel_size (tuple): Kernel size for morphological operations.
-    - dilation_iter (int): Number of iterations for dilation.
-    - dist_transform_factor (float): Factor of the max distance transform to threshold the foreground.
-    - min_foreground_area (int): Minimum area to keep a connected component in the foreground.
-
-    Returns:
-    - np.ndarray: Marker image for watershed algorithm.
-    """
     kernel = np.ones(morph_kernel_size, np.uint8)
 
     # Noise removal using morphological opening
