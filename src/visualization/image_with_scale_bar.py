@@ -98,15 +98,28 @@ def display_image(image: np.ndarray, title="Image"):
     ax.set_title(title)
     ax.axis("off")
 
-    # === Positioning (Lower right) ===
-    x_start = width - SCALE_BAR_MARGIN - SCALE_BAR_PIXELS
-    y_start = height - SCALE_BAR_MARGIN
+    # === This is the crucial alignment fix ===
+    fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
+    ax.set_position([0, 0, 1, 1])
+    ax.set_xlim(0, width)
+    ax.set_ylim(height, 0)
 
-    # === Draw white background box ===
-    background_x = x_start - 10
-    background_y = y_start - SCALE_BAR_BACKGROUND_HEIGHT + 10
-    background_width = SCALE_BAR_PIXELS + 20
-    background_height = SCALE_BAR_BACKGROUND_HEIGHT
+    # === Custom padding values ===
+    padding_left = 20
+    padding_right = 20
+    padding_bottom = 15
+    label_above_bar_offset = 30
+    extra_buffer = 20  # Optional, ensures full coverage
+
+    # === Background box dimensions (DYNAMICALLY CALCULATED) ===
+    background_width = SCALE_BAR_PIXELS + padding_left + padding_right
+    background_height = (
+        SCALE_BAR_HEIGHT + label_above_bar_offset + padding_bottom + extra_buffer
+    )
+
+    # === Anchor white box at bottom-right corner of image ===
+    background_x = width - background_width
+    background_y = height - background_height
 
     rect = Rectangle(
         (background_x, background_y),
@@ -116,6 +129,10 @@ def display_image(image: np.ndarray, title="Image"):
         zorder=2,
     )
     ax.add_patch(rect)
+
+    # Bar position: a bit above bottom of white box
+    x_start = background_x + padding_left
+    y_start = background_y + background_height - padding_bottom
 
     # === Draw black scale bar ===
     ax.plot(
@@ -129,10 +146,11 @@ def display_image(image: np.ndarray, title="Image"):
     # === Draw scale bar label ===
     ax.text(
         x_start + SCALE_BAR_PIXELS / 2,
-        y_start - SCALE_BAR_BACKGROUND_HEIGHT / 2 + 5,
+        y_start - label_above_bar_offset,
         SCALE_BAR_TEXT,
-        color="black",
         fontsize=FONT_SIZE,
+        fontweight="bold",
+        color="black",
         ha="center",
         va="center",
         zorder=4,
@@ -141,6 +159,7 @@ def display_image(image: np.ndarray, title="Image"):
 
     # Show only in interactive backends
     import matplotlib
+
     if matplotlib.get_backend() != "Agg":
         plt.show()
 

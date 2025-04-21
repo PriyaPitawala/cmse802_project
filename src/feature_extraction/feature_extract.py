@@ -1,11 +1,47 @@
-# Module for extraction of crystallinity features.
+"""
+feature_extract.py
 
-# This module contains functions for cleaning the segmented labels and removing boundary regions from segmentation,
-# extracting the features from the cleaned labels, and returning an image of the grayscale of a raw image overlaid
-# with bounding boxes and labelled text for each segmented region.
+This module provides utilities for extracting region-based features from
+segmented microscopy images and visualizing labeled results.
 
-# Author: Priyangika Pitawala
-# Date: March 2025
+Main Functionalities:
+---------------------
+1. clean_watershed_labels:
+    - Removes watershed boundary pixels (-1) and relabels segmented regions
+      using sequential positive integers.
+
+2. extract_region_features:
+    - Computes morphological and intensity-based features from labeled regions,
+      including area, eccentricity, diameter, solidity, and grayscale intensity stats.
+
+3. overlay_labels_on_image:
+    - Visualizes segmented regions by drawing bounding boxes and label numbers
+      on the grayscale image for inspection and presentation.
+
+Dependencies:
+-------------
+- NumPy
+- pandas
+- OpenCV (cv2)
+- scikit-image (skimage.measure, skimage.segmentation)
+
+Typical Usage:
+--------------
+```python
+from feature_extraction import feature_extract
+
+# Clean labels after watershed
+cleaned_labels = feature_extract.clean_watershed_labels(watershed_markers)
+
+# Extract morphological and grayscale-based features
+features_df = feature_extract.extract_region_features(cleaned_labels, raw_image)
+
+# Overlay labels and bounding boxes
+labeled_overlay = feature_extract.overlay_labels_on_image(cleaned_labels, raw_image)
+
+#Author: Priyangika Pitawala
+#Date: April 2025
+"""
 
 import numpy as np
 import pandas as pd

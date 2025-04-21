@@ -24,13 +24,15 @@ matplotlib.use("Agg")  # Headless backend for testing
 @pytest.fixture
 def sample_df():
     """Create a minimal DataFrame for grouped plotting."""
-    return pd.DataFrame({
-        "light_intensity": [5, 10, 5, 10],
-        "weighted_median": [4.0, 5.0, 6.0, 7.0],
-        "thickness": [100, 100, 200, 200],
-        "iqr_low": [3.5, 4.5, 5.5, 6.5],
-        "iqr_high": [4.5, 5.5, 6.5, 7.5],
-    })
+    return pd.DataFrame(
+        {
+            "light_intensity": [5, 10, 5, 10],
+            "weighted_median": [4.0, 5.0, 6.0, 7.0],
+            "thickness": [100, 100, 200, 200],
+            "iqr_low": [3.5, 4.5, 5.5, 6.5],
+            "iqr_high": [4.5, 5.5, 6.5, 7.5],
+        }
+    )
 
 
 def test_plot_saves_file(sample_df, tmp_path):
@@ -69,11 +71,13 @@ def test_plot_handles_asymmetric_error(sample_df, tmp_path):
 
 def test_plot_group_sorting(tmp_path):
     """Ensure sorting logic handles unsorted input."""
-    df_unsorted = pd.DataFrame({
-        "light_intensity": [10, 5, 10, 5],
-        "weighted_median": [5.0, 4.0, 7.0, 6.0],
-        "thickness": [100, 100, 200, 200],
-    })
+    df_unsorted = pd.DataFrame(
+        {
+            "light_intensity": [10, 5, 10, 5],
+            "weighted_median": [5.0, 4.0, 7.0, 6.0],
+            "thickness": [100, 100, 200, 200],
+        }
+    )
     output_path = tmp_path / "sorted_plot.png"
     plot_group_trend(
         df=df_unsorted,
@@ -90,11 +94,13 @@ def test_plot_group_sorting(tmp_path):
 
 def test_plot_no_crash_on_minimal_input(tmp_path):
     """Test function doesn’t crash with one group and one point."""
-    df = pd.DataFrame({
-        "light_intensity": [5],
-        "weighted_median": [4.5],
-        "thickness": [100],
-    })
+    df = pd.DataFrame(
+        {
+            "light_intensity": [5],
+            "weighted_median": [4.5],
+            "thickness": [100],
+        }
+    )
     output_path = tmp_path / "minimal_plot.png"
     plot_group_trend(
         df=df,

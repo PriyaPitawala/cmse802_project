@@ -36,6 +36,7 @@ matplotlib.use("Agg")  # Set backend after all imports
 # Synthetic Image Conversion
 # --------------------------
 
+
 @pytest.fixture
 def synthetic_images():
     """Returns a dict of grayscale, float, int, and BGR test images."""
@@ -90,6 +91,7 @@ def test_display_image_runs(synthetic_images):
 # Real Image Scale Bar Validation
 # -------------------------------
 
+
 @pytest.mark.skipif(
     not os.path.exists("tests/data/image_with_real_scale_bar.tif"),
     reason="Real annotated scale bar image not found.",
@@ -108,9 +110,7 @@ def test_detect_real_scale_bar(tmp_path):
     img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
     assert img is not None, "Failed to load real image."
 
-    img_gray = (
-        cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) if img.ndim == 3 else img.copy()
-    )
+    img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) if img.ndim == 3 else img.copy()
     h, w = img_gray.shape
     y_start = int(h * (1 - region_fraction))
     x_start = int(w * (1 - region_fraction))
