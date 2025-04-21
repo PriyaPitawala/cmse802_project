@@ -65,14 +65,16 @@ def test_weighted_percentile_uneven():
 
 @pytest.fixture
 def mock_summary_csv(tmp_path):
-    df = pd.DataFrame({
-        "light_intensity": [10, 10, 20],
-        "thickness": [100, 100, 100],
-        "photoabsorber": [0.01, 0.01, 0.01],
-        "median_diameter": [10, 20, 30],
-        "percent_crystallinity": [45, 55, 60],
-        "segmentation_quality": [1.0, 0.5, 1.0]
-    })
+    df = pd.DataFrame(
+        {
+            "light_intensity": [10, 10, 20],
+            "thickness": [100, 100, 100],
+            "photoabsorber": [0.01, 0.01, 0.01],
+            "median_diameter": [10, 20, 30],
+            "percent_crystallinity": [45, 55, 60],
+            "segmentation_quality": [1.0, 0.5, 1.0],
+        }
+    )
     csv_path = tmp_path / "summary.csv"
     df.to_csv(csv_path, index=False)
     return csv_path
@@ -82,7 +84,7 @@ def test_compute_weighted_median_iqr(mock_summary_csv):
     df = group_stats.compute_weighted_median_iqr(
         summary_csv_path=str(mock_summary_csv),
         photoabsorber=0.01,
-        group_keys=["light_intensity", "thickness"]
+        group_keys=["light_intensity", "thickness"],
     )
     assert not df.empty
     assert "weighted_median" in df.columns
@@ -96,7 +98,7 @@ def test_compute_weighted_crystallinity_percentile_range(mock_summary_csv):
         photoabsorber=0.01,
         group_keys=["light_intensity", "thickness"],
         lower_pct=0.10,
-        upper_pct=0.90
+        upper_pct=0.90,
     )
     assert not df.empty
     assert "weighted_crystallinity_median" in df.columns

@@ -45,13 +45,15 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "s
 
 @pytest.fixture
 def mock_summary_csv(tmp_path):
-    df = pd.DataFrame({
-        "image_id": ["img_001", "img_002"],
-        "thickness": [100, 100],
-        "light_intensity": [10, 10],
-        "photoabsorber": [0.01, 0.01],
-        "segmentation_quality": [1.0, 0.5],
-    })
+    df = pd.DataFrame(
+        {
+            "image_id": ["img_001", "img_002"],
+            "thickness": [100, 100],
+            "light_intensity": [10, 10],
+            "photoabsorber": [0.01, 0.01],
+            "segmentation_quality": [1.0, 0.5],
+        }
+    )
     csv_path = tmp_path / "summary.csv"
     df.to_csv(csv_path, index=False)
     return csv_path

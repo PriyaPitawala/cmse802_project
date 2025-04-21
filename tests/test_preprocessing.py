@@ -66,9 +66,9 @@ def sample_image():
 def test_preprocess_image_old_returns_binary(sample_image):
     binary = preprocessing_old.preprocess_image(sample_image)
     unique_vals = np.unique(binary)
-    assert set(unique_vals).issubset({0, 255}), (
-        f"Old version output not binary: {unique_vals}"
-    )
+    assert set(unique_vals).issubset(
+        {0, 255}
+    ), f"Old version output not binary: {unique_vals}"
     assert binary.shape == sample_image.shape[:2]
 
 
@@ -82,9 +82,9 @@ def test_compute_markers_old_produces_labels(sample_image):
 def test_preprocess_image_debug_returns_binary(sample_image):
     binary = debug_preprocessing.preprocess_image(sample_image)
     unique_vals = np.unique(binary)
-    assert set(unique_vals).issubset({0, 255}), (
-        f"Debug version output not binary: {unique_vals}"
-    )
+    assert set(unique_vals).issubset(
+        {0, 255}
+    ), f"Debug version output not binary: {unique_vals}"
     assert binary.shape == sample_image.shape[:2]
 
 
