@@ -1,3 +1,66 @@
+"""
+average_distribution.py
+
+This module computes and visualizes average crystallite size distributions across
+groups of samples based on experimental parameters such as layer thickness, light
+intensity, and photoabsorber concentration.
+
+It supports:
+- Unweighted averaging of crystallite size histograms across matching samples
+- Weighted averaging based on segmentation quality scores
+- Flexible control over bin width and histogram styling
+
+Data Sources:
+-------------
+- Results are pulled from:
+    - Crystallinity summary table:
+        ../../results/tables/crystallinity_summary_all_images.csv
+    - Per-image feature files:
+        ../../results/features/{image_id}_features.csv
+
+Main Functions:
+---------------
+1. load_matching_features():
+    Loads the equivalent diameters (in microns) of crystallites for all samples
+    matching the given experimental conditions.
+
+2. plot_average_distribution():
+    Plots a histogram of crystallite sizes averaged across all matching samples.
+    Each sample contributes equally regardless of segmentation quality.
+
+3. plot_weighted_group_distribution():
+    Plots a weighted histogram where each sample’s contribution is scaled by its
+    'segmentation_quality' score from the summary CSV.
+
+Constants:
+----------
+- MICRONS_PER_PIXEL: Pixel-to-micron conversion factor for scale calibration.
+
+Example Usage:
+--------------
+```python
+# Unweighted histogram for 100 µm thick, 10 mW/cm², 0.01 wt% samples
+group_data = load_matching_features(100, 10, 0.01)
+plot_average_distribution(group_data)
+
+# Weighted average for the same group
+plot_weighted_group_distribution(100, 10, 0.01)
+```
+
+Dependencies:
+-------------
+- pandas
+- numpy
+- matplotlib
+- os
+
+Designed for integration into crystallinity quantification pipelines for
+semicrystalline photopolymer analysis via polarized optical microscopy (POM).
+
+#Author: Priyangika Pitawala
+#Date: April 2025
+"""
+
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -53,7 +116,8 @@ def plot_average_distribution(
     all_diameters_um, title="Average Crystallite Size Distribution", bin_width=2.0
 ):
     """
-    Plot the average crystallite size distribution by dividing bin counts by the number of samples.
+    Plot the average crystallite size distribution by dividing bin counts
+    by the number of samples.
 
     Parameters:
     - all_diameters_um (List of pd.Series): One Series of diameters (in µm) per sample.
