@@ -1,11 +1,36 @@
-# Module for watershed segmentation algorithm.
+"""
+watershed_segmentation.py
 
-# This module contains  a function for segmenting an image using watershed algorith.
-# The function intakes a raw image and markers for segmentation, and outputs a grayscale
-# version of the raw image overlaid with the segmented boundaries.
+This module provides functionality to apply watershed segmentation to labeled images
+using OpenCV. It overlays the segmentation boundaries on the original image and
+returns both the visual result and the updated marker labels.
 
-# Author: Priyangika Pitawala
-# Date: March 2025
+Main Function:
+- apply_watershed(image, markers): Applies watershed segmentation to an input image
+  using a set of labeled markers and returns the result with green boundaries overlaid.
+
+Usage:
+This function is typically used after generating foreground/background markers using
+distance transforms or other segmentation techniques. It is suitable for visualizing
+spherulite boundaries or segmenting grain-like regions in microscopy images.
+
+Example:
+    result_image, updated_markers = apply_watershed(input_image, marker_mask)
+
+Requirements:
+- OpenCV (cv2)
+- NumPy
+
+Returns:
+- A BGR image with segmentation boundaries overlaid in green.
+- The updated marker array (int32) with watershed results.
+
+Raises:
+- ValueError: If the input image or marker array is invalid.
+
+#Author: Priyangika Pitawala
+#Date: April 2025
+"""
 
 import cv2
 import numpy as np
