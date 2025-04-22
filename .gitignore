@@ -181,10 +181,43 @@ cython_debug/
 .vscode/
 .idea/
 
-
-# Ignore results and data
+# === Ignore results folder ===
 results/
+
+# === Ignore raw and processed data ===
 data/raw/
-data/preprocessed/
-data/processed/
+data/preprocessed/*
+data/processed/*
+
+# Keep .gitkeep files
+!data/preprocessed/.gitkeep
+!data/processed/.gitkeep
+
+# === Ignore reports outputs ===
+reports/final/outputs/
+reports/interim/outputs/
+reports/**/figures/
+reports/**/*.aux
+reports/**/*.out
+reports/**/*.pdf
+reports/**/*.synctex.gz
+reports/**/*.fls
+reports/**/*.fdb_latexmk
+
+# Keep source files
+!reports/**/*.tex
+!reports/**/*.md
+!reports/**/*.ipynb
+!reports/**/README.md
+!reports/**/.gitkeep
+
+# === Ignore test data images ===
+tests/data/*.tif
+tests/data/*.jpg
+
+# Keep placeholder if needed
+!tests/data/.gitkeep
+
+
+
 

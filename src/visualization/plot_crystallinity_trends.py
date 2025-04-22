@@ -151,3 +151,143 @@ def plot_group_trend(
     plt.close()
 
     print(f"✅ Plot saved to {output_path}")
+
+
+def plot_group_boxplot(
+    df,
+    x_col,
+    y_col,
+    group_col,
+    x_label,
+    y_label,
+    output_path,
+    ylim=None,
+    xlim=None,
+    order=None,
+):
+    """
+    Creates grouped boxplots using Matplotlib only.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Raw DataFrame with individual data points.
+
+    x_col : str
+        Column name for x-axis grouping (e.g., 'light_intensity').
+
+    y_col : str
+        Column name for the y-axis values (e.g., 'crystallite_diameter').
+
+    group_col : str
+        Column name to color/separate by (e.g., 'thickness').
+
+    x_label : str
+        Label for the x-axis.
+
+    y_label : str
+        Label for the y-axis.
+
+    output_path : str
+        Full path to save the output plot (saved as .png with 300 dpi).
+
+    ylim : tuple, optional
+        y-axis limits as (min, max).
+
+    xlim : tuple, optional
+        x-axis limits as (min, max).
+
+    order : list, optional
+        Custom sort order for x_col values.
+
+    Returns
+    -------
+    None
+    """
+    import numpy as np
+
+    plt.figure(figsize=(10, 9))
+    ax = plt.gca()
+
+    # Set consistent order of x-values
+    x_vals = sorted(df[x_col].unique()) if order is None else order
+    group_vals = sorted(df[group_col].unique())
+
+    # Compute spacing
+    width = 0.8  # total width for each group of boxes
+    box_width = width / len(group_vals)
+    positions = []
+
+    for i, group in enumerate(group_vals):
+        group_data = df[df[group_col] == group]
+        color = color_map[i % len(color_map)]
+        box_pos = []
+
+        for j, x in enumerate(x_vals):
+            xpos = j - width / 2 + i * box_width + box_width / 2
+            subset = group_data[group_data[x_col] == x][y_col].values
+
+            if len(subset) > 0:
+                bp = ax.boxplot(
+                    subset,
+                    positions=[xpos],
+                    widths=box_width * 0.9,
+                    patch_artist=True,
+                    showfliers=True,
+                    boxprops=dict(facecolor=color, color="black", linewidth=2),
+                    capprops=dict(color="black", linewidth=2),
+                    whiskerprops=dict(color="black", linewidth=2),
+                    flierprops=dict(marker="o", markersize=5, color="black", alpha=0.5),
+                    medianprops=dict(color="black", linewidth=2),
+                )
+            box_pos.append(xpos)
+
+        positions.append(box_pos)
+
+    ax.set_xticks(range(len(x_vals)))
+    ax.set_xticklabels([str(x) for x in x_vals], fontsize=22)
+
+    plt.xlabel(x_label, fontsize=25)
+    plt.ylabel(y_label, fontsize=25)
+
+    if ylim:
+        plt.ylim(ylim)
+    else:
+        plt.ylim(bottom=0)
+    if xlim:
+        plt.xlim(xlim)
+
+    # Custom legend
+    handles = [
+        plt.Line2D([0], [0], color=color_map[i % len(color_map)], lw=10)
+        for i in range(len(group_vals))
+    ]
+    labels = [f"{g} µm" for g in group_vals]
+    legend = ax.legend(
+        handles,
+        labels,
+        title="Layer Thickness",
+        loc="lower left",
+        title_fontsize=22,
+        fontsize=22,
+    )
+    legend.get_frame().set_edgecolor("black")
+    legend.get_frame().set_linewidth(1.5)
+
+    # Style
+    ax.tick_params(axis="both", which="major", length=10, width=2)
+    ax.tick_params(axis="both", which="minor", length=7, width=1.5)
+    for spine in ax.spines.values():
+        spine.set_linewidth(2)
+        spine.set_color("black")
+    ax.set_facecolor("white")
+
+    # Save plot
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300)
+    plt.close()
+
+    print(f"✅ Boxplot saved to {output_path}")
+
+

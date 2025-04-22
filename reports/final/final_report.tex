@@ -1,0 +1,298 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{cite}
+\usepackage{booktabs}
+\usepackage{enumitem}
+
+\title{Final Project Report}
+\author{Priyangika Pitawala}
+\date{April 21, 2025}   
+
+\begin{document}
+
+\maketitle
+
+The code repository can be accessed at \url{https://github.com/PriyaPitawala/cmse802_project}.
+
+\section*{Project Title}
+Image Analysis and Percent Crystallinity Quantification
+
+\section{Introduction}
+
+\subsection{Project Overview}
+This project involves creating a Python-based tool that processes polarized optical microscope (POM) images of a semicrystalline
+thiol-ene photopolymer system suited for vat photopolymerization (VP), and analyzes the percent crystallinity. It will also attempt to 
+find a correlation between the crystallinity features and the VP processing parameters such as light intensity,
+layer thickness, photoabsorber concentration.
+
+\subsection{Objectives}
+\begin{itemize}[noitemsep]
+    \item To preprocess the POM images to enhance the contrast between crystalline and amorphous regions, and to reduce noise.
+    \item To define the features that characterize crystallinity and develop an algorithm to distinguish between crystalline and amorphous regions.
+    \item To calculate the percent crystallinity of each image and aggregate the results of multiple images using statistical methods.
+    \item To analyze the relationships between the percent crystallinity and the polymer processing parameters
+    \item To use data visualization tools to display the results.
+    
+\end{itemize}
+
+\section{Background and Motivation}
+
+\subsection{Significance of the Problem}
+Semicrystalline morphology directly influences the thermal and mechanical performance of photopolymers used in VP. 
+By quantifying percent crystallinity, one can estimate the extent and number of crystalline domains formed under specific processing conditions. 
+Additionally, analyzing the crystallite size distribution offers valuable insights into the parameters that govern the development of heterogeneous polymer networks. 
+Therefore, characterization of crystallinity is fundamental to the optimization of VP-compatible materials.
+
+Polarized optical microscopy (POM) is a powerful technique for studying the crystallinity of semicrystalline polymers.
+It provides high-resolution images of the crystalline and amorphous regions, allowing for detailed analysis of the morphology.
+Crystalline regions appear bright under polarized light, while amorphous regions appear dark. In addition characteristic patterns such as Maltese crosses can be observed,
+which are indicative of the crystalline structure.
+However, analysis of POM images is often subjective and time-consuming, requiring manual inspection and interpretation.
+This project aims to use computational techniques for analyzing POM images, making it faster and more reliable.
+
+\subsection{Hypothesis and Research Questions}
+\begin{enumerate}[noitemsep]
+    \item Can the percent crystallinity of semicrystalline thiol-ene photopolymers be accurately quantified from POM images using image processing techniques?
+    \item What is the relationship between the crystallinity features and the processing parameters such as light intensity, layer thickness, and photoabsorber concentration?
+\end{enumerate}
+
+\subsection{Scope and Limitations}
+The project focuses on segmenting spherulites and Maltese cross from grayscale POM images of semicrystalline polymers, 
+assuming uniform lighting and minimal image noise. Extension to other microscopy and materials types is outside scope.
+Moreover, due to time constraints, the project will not include any correlations to the material properties, only the processing parameters.
+Additionally, the project will not include any machine learning techniques, as the focus is on image processing and feature extraction. 
+
+\section{Project Implementation and Methodology}
+
+\subsection{Architecture and Component Overview}
+The tool is organized into modular Python scripts:
+\begin{itemize}[noitemsep]
+    \item data\_loading/ -- loads raw POM images and metadata
+    \item preprocessing/ -- preprocesses images to enhance contrast and reduce noise
+    \item segmentation/ -- segments the images using edge-based techniques and watershed algorithm
+    \item feature\_extraction/ -- extracts crystallinity features
+    \item crystallinity\_quantification/ -- calculates percent crystallinity and size distribution
+    \item regression/ -- performs analysis to find correlations between crystallinity and processing parameters
+    \item visualization/ -- generates plots and overlays
+\end{itemize}
+
+\subsection{Dependencies Used}
+\begin{itemize}[noitemsep]
+    \item OpenCV-Python for image loading and processing.
+    \item Scikit-image for image segmentation and feature extraction.
+    \item NumPy for numerical operations and array manipulations.
+    \item Matplotlib for data visualization and plotting.
+    \item Pandas for data manipulation and analysis.
+    \item SciPy for scientific computing and filtering.
+\end{itemize}
+
+\subsection{Methodology}
+
+The key strategy for testing the hypothesis and answering the research questions was to visualize the output of each implementation stage.
+By doing so, the performance of each step could be evaluated and adjusted as needed. 
+For example, the preprocessing steps and feature extraction steps were visualized to ensure that the features were being extracted correctly.
+This approach allowed for a clear understanding of the segmentation process and the ability to fine-tune each step for better results.
+Furthermore, it ensured that simpler solutions were not overlooked in favor of more complex ones.
+
+The two image segmentation techniques used were edge-based segmentation and watershed segmentation.
+Edge-based segmentation uses a binary image to identify the edges between regions of high intensity (white) and low intensity (black).
+The watershed algorithm is a region-based segmentation technique that treats the image as a topographic surface. 
+It places markers at the local minima of a region and finds the watershed lines that separate different regions. 
+While watershed algorithm is more sophisticated and can handle more complex images, it is also more computationally expensive. And depending
+on the image, it may or may not be effective (eg: interference from grain texture or noise).
+
+Therefore, to optimize image segmentation, biases from the expert knowledge of the material and the images were incorporated.
+For example, in the studied system, the amorphous regions and Maltese crosses are darker with lower intensities, while the crystalline regions are brighter with higher intensities.
+This information was used to define the known foreground and background regions in the image to compute a binary mask that can be used for edge-based segmentation.
+Similarly, visual inspection of the images was used to determine the size of the spherulites and the expected noise levels. Thus, brute filtering was used to remove
+small noise particles (less than 2 microns in diameter) and to separate the crystalline regions from the amorphous regions. Figure 1 shows an example of a POM image 
+that was preprocessed to remove noise and masked to highlight the known foreground and background regions. 
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{figures/preprocess_eg.jpg}
+    \caption{\centering Preprocessing example. The left image shows the original POM image, while the right images show the same image after preprocessing.}
+\end{figure}
+
+The demonstrations of the edge-based segmentation and watershed segmentation are shown in Figures 2. 
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{figures/segment_eg.jpg}
+    \caption{\centering Segmentation example. The left image shows edge-based segmented boundaries in blue, while the right image shows the same image with watershed segmented boundaries in green.}
+\end{figure}
+
+\subsection{Key Algorithms Used}
+\begin{itemize}[noitemsep]
+    \item Grayscale conversion for color image processing
+    \item Adaptive histogram equalization (CLAHE) for contrast enhancement
+    \item Noise reduction using grain size filtering for foreground and background separation
+    \item Further noise reduction using Gaussian blur and thresholding before watershed segmentation
+    \item Initial segmentation using edge-based techniques (Canny edge detection)
+    \item Computation of markers for watershed segmentation
+    \item Watershed algorithm for separating merged spherulites
+    \item Quantitative feature extraction for crystallinity metrics
+    \item Percent crystallinity calculation using size distribution of segmented regions
+    \item Weighted averaging of crystallinity features grouped by processing parameters
+    \item Visualization of crystallinity features against processing parameters to find correlations
+\end{itemize}
+
+\subsection{Implementation Status}
+Most pipeline components are functional. Remaining modelling tasks include refining gradient-based splitting of merged spherulites and 
+optimizing the preprocessing step to reduce oversegmentation. 
+
+Forming correlations between crystallinity and processing parameters was completed, however, including material properties will require
+ additional data collection. Furthermore, certain processing parameters produced images with significant noise, making segmentation 
+ difficult. Handling these cases will require further refinement of the data collection and preprocessing steps.
+
+\subsection{Technical Challenges and Solutions}
+Noisy edges and merged spherulites pose a challenge. Refinement of the segmentation is underway with the following strategies:
+\begin{enumerate}[noitemsep]
+    \item Increase the threshold for size filtering to remove small noise particles.
+    \item Use gap closing and dilation to fill gaps in the edges and separate merged spherulites.
+    \item Implement a hybrid edge-watershed segmentation approach to combine edge-based and watershed techniques.
+\end{enumerate}
+
+% \subsection{Changes from HW2 Plan}
+% Rather than structure-property correlations, the focus shifted to processing-structure correlations.
+
+% This change was made to better align with the available data and to make the project more manageable within the given timeline.
+% Future work will include exploring the relationship between crystallinity and material properties, after difficulites with 
+% segmenting complicated images are resolved.
+
+\section{Technical Optimization}
+
+\subsection{Performance Bottlenecks Identified}
+Difficulty in preprocessing images in batch mode due to variations in noise levels. Thus, the preprocessing step must be 
+closely tailored to each image. This can be time-consuming and inefficient, especially when processing large datasets. It is planned to implement 
+an automated batch processing model that can adapt to different noise levels and image characteristics, once time permits and the current
+segmentation issues are resolved.
+
+\subsection{Optimization Techniques Implemented}
+Vectorized NumPy operations and investigating multiple segmentation techniques.
+Furthermore, unnecessary data were dropped during the preprocessing step (eg: color channels that were not used in the analysis).
+This reduced the amount of data that needed to be processed and improved the overall performance of the tool.
+
+% \subsection{Quantitative Performance Improvements}
+% Creating a foreground mask based on expert knowledge of the images has improved the segmentation accuracy.
+
+% Masking removed a significant amount of noise and allowed for more accurate segmentation of the crystalline regions.
+
+\subsection{Error Handling and Robustness Measures}
+Input shapes and image channels are validated to check if the input is a valid image. This ensures that the program does not 
+crash when given an invalid input. In such cases, a ValueError is raised, and the user is prompted to check the input.
+
+Segmentation steps are modular for fallback. If a segmentation step fails, the program can revert to the previous step and 
+try again with different parameters or segmentation techniques.
+This allows for flexibility in the segmentation process and ensures that the program can still produce results even if one 
+step fails.
+
+\section{Validation and Testing}
+
+\subsection{Validation Methodology}
+Manual visual inspection and cross-comparison with annotated samples. This involves overlaying removed noise, segmented regions, and
+extracted features on the original image to ensure that the segmentation is accurate and that the features are correctly extracted.
+Figure 1 and 2 are such examples of the validation process for the preprocessing and segmentation steps. Figure 3 validates the feature extraction step for the 
+same POM image.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{figures/extract_eg.jpg}
+    \caption{\centering Feature extraction example. The segmented regions are bound inside green boxes and annotead in blue.}
+\end{figure}
+
+\subsection{Test Cases and Coverage}
+Tested across image sets varying in contrast, crystallinity, and lighting. As the samples were prepared under different conditions, 
+this was an expected outcome. The images were taken by maintaining similar color histograms. 
+
+Some images are thicker than others, causing multiple spherulite layers to be included in the same image. This increased the level of 
+noise. To mitigate this, the segmentation quality was scored to weigh the statistical results. The difference in segmentation quality 
+can be observed in Figure 4.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{figures/segmentation_quality.jpg}
+    \caption{\centering Demonstration of segmentation quality. The top row shows a raw POM image with high noise level, which interfere with obtaining meaningful segmentations.
+    The bottom row shows a raw POM image with low noise level, which allows for better segmentation accuracy.}
+\end{figure}
+
+% \subsection{Quantitative Validation Results}
+% Results were validated by visual inspection such as in Figures 1-4. 
+
+\subsection{Analysis of Accuracy and Reliability}
+Segmentation is reliable for clear boundaries. Undersegmentation may occur in low-contrast regions with high noise levels.
+
+\section{Results and Discussion}
+
+\subsection{Key Findings and Outputs}
+Edge-based segmentation performed well on high-contrast images, which correponded to higly amorphous regions as seen in Figure 2.
+
+Low light intensities produced highly crystalline surfaces, with grain boundaries visible in the images. However,
+the segmentation was less reliable in these cases, as the spherulites were not clearly defined. Therefore, a hybrid 
+approach may be necessary to improve the segmentation accuracy.
+
+Figure 5 shows the general trend of crystallite size dristribution and percent crystallinity with respect to the processing parameters.
+The crystallite size was represented by the radial segment length of the spherulites, and the percent crystallinity was calculated 
+as the ratio of the crystallite area to the total area of the image (the areas of Maltese crosses were combined with the amorphous background regions).
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{figures/results.jpg}
+    \caption{\centering Variation of the median radial segment length of spherulites and percent crystallinity as a function of light intensity and layer thickness.
+    The data is grouped by photoabsorber concentration of 0.1 wt\%.}
+\end{figure}
+
+
+\subsection{Analysis of Results}
+Lower light intensities and thicknesses promote heterogeniety in crystallization. Therefore, the spherulite 
+size distribution is wider, as shown in Figure 5. Moreover, the median value of the percent crystallinity steadily decreases 
+with increasing light intensity. This can be explained as an increase in the polymerization rate with increasing light intensity, which leads 
+to a decrease in the time available for crystallization.
+
+Furthermore, due to potential skewing from over- or under-segmentation, the averages of these features were not good
+indicators of the crystallinity. The median spherulite size and percent crystallinity were used instead, as they are less sensitive to outliers.
+
+\subsection{Interpretation in Context of Project Goals}
+The model is able to segment and quantify the semicrystalline morphology of the thiol-ene photopolymer system.
+The performance was better at certain processing parameters, and while refinement is required for improving
+segmentation accuracy, the model is able to produce interpretable metrics.
+
+\subsection{Limitations and Future Improvements}
+Segmentation errors persist in thicker samples, due to poor image quality. Future work will include 
+better data collection steps, and tuning of the preprocessing parameters to improve the segmentation accuracy.
+
+\section{Conclusion}
+
+\subsection{Summary of Achievements}
+An image analysis tool for segmenting and quantifying semicrystalline morphology from POM images was developed.
+The model is tunable for different noise levels, with all the preprocessing and segmentation steps modularized for flexibility.
+Meaningful correlations were made between crystallinity and processing parameters, and the results were visualized using Matplotlib.
+
+\subsection{Evaluation of Approach}
+The image processing pipeline builds up from basic steps such as grayscale conversion and histogram equalization, 
+to more complex steps such as watershed segmentation and feature extraction. This approach allowed for a clear understanding
+of the segmentation process and the ability to fine-tune each step for better results. Furthermore, it ensured that simpler 
+solutions were not overlooked in favor of more complex ones.
+
+\subsection{Next Steps for Completion}
+Adjusting preprocessing parameters for better segmentation, and attempting to find a correlation between crystallinity and
+ material properties.
+
+\section{References}
+\begin{itemize}
+    \item Gonzalez, R. C., and Woods, R. E. \textit{Digital Image Processing}, 4th ed., Pearson, 2018.
+    \item OpenCV: https://opencv.org/
+    \item Scikit-Image: https://scikit-image.org/
+    \item NumPy: https://numpy.org/
+    \item Matplotlib: https://matplotlib.org/
+    \item OpenAI. \textit{ChatGPT}; https://chat.openai.com (accessed April 16, 2025).
+\end{itemize}
+
+\end{document}
+
